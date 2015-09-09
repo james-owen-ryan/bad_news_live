@@ -1,0 +1,124 @@
+@font-face {
+    font-family: FjordOne;
+    src: url(Fjord_One/FjordOne-Regular.ttf);
+    font-weight:400;
+}
+
+body {
+	background: #74AFAD;
+	color: #ECECEA;
+	font-family: 'FjordOne', serif;
+	
+	/*
+	nice color palette
+	#558C89 - dark-grey-blue
+	#74AFAD - light blue
+	#D9853B - orange
+	#ECECEA - light grey
+	*/
+}
+
+
+
+#headerArea{
+	text-align: center;
+}
+
+#mainArea{
+	width: 80%;
+	margin: auto;
+}
+
+.mainDiv{
+	border-width: 2px;
+	border-style: solid;
+	float: left;
+	margin-left: 30px;
+	padding: 5px;
+	width: 250px;
+	margin-top: 10px;
+}
+
+#locationDiv{
+	width: 400px;
+}
+
+
+
+.innerDiv{
+	border-width: 2px;
+	border-style: dashed;
+	padding: 5px;
+	margin-top: 10px;
+}
+
+.mainDivTitle{
+	font-weight: bold;
+	font-size: 24px;
+	text-align: center;
+}
+
+#whoAmIDiv{
+	font-size: 30px;
+	width: 35%;
+	margin-bottom: 30px;
+	margin-left: 25%
+}
+
+#summary{
+	font-size: 36px;
+}
+
+#topAreaDiv{
+	clear: both;
+}
+
+#characterDescriptionArea{
+	clear: both;
+}
+
+#timeAndPlaceInfo{
+	float: right;
+	width: 30%;
+}
+
+#extraInfoDiv{
+	clear: both;
+}
+
+.topic{
+	font-weight: bold;
+	font-style: italic;
+}
+
+.dynamicData{
+	color: #8644DF;
+	padding-left: 10px;
+}
+
+.otherCharacterDescription{
+	display: block;
+	padding-left: 10px;
+	font-size: 12px;
+	font-style: italic;
+	color: #4244DF;
+}
+
+.previousCharacterDescription{
+	display: block;
+	padding-left: 10px;
+	font-size: 12px;
+	font-style: italic;
+	color: #4244DF;
+}
+
+.dynamicList{
+	padding-top: 0px;
+    -webkit-margin-before: 0em;
+    -webkit-margin-after: 0em;
+    -webkit-margin-start: 0px;
+    -webkit-margin-end: 0px;
+    -webkit-padding-start: 30px;
+    width: 90%;
+}
+
