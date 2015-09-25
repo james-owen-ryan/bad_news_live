@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request
+from bad_news import Game
 
 
 app = Flask(__name__, static_url_path='/static')
@@ -17,6 +18,10 @@ def actor():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.game = Game(single_player=False)
+    app.player = app.game.player
+    app.deceased_character = app.game.deceased_character
+    app.next_of_kin = app.game.next_of_kin
+    app.run(debug=False)
 else:
     pass
