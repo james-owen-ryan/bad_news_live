@@ -1,3 +1,7 @@
+import sys
+PATH_TO_ANYTOWN = '/Users/jamesryan/Desktop/Projects/Personal/anytown'
+sys.path.append(PATH_TO_ANYTOWN)
+
 from game import Game as Sim
 import random
 import string
