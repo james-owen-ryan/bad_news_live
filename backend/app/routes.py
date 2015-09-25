@@ -14,7 +14,13 @@ def wizard():
 @app.route('/actor')
 def actor():
     """Render the Actor interface."""
-    return render_template('actor.html')
+    return render_template('actor.html', interlocutor=app.game.player.interlocutor, player=app.game.player)
+
+
+@app.route('/player')
+def player():
+    """Render the Player interface."""
+    return render_template('player.html', game_exposition=app.game.exposition)
 
 
 if __name__ == '__main__':

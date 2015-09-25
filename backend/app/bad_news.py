@@ -39,7 +39,8 @@ class Game(object):
         self.player.location = self.deceased_character.location
         self.deceased_character.die('Unknown causes')
         self.nok = self.next_of_kin = self.deceased_character.next_of_kin
-        self.print_opening_exposition()
+        self.exposition = ''  # Text that is displayed to the player at any given point during gameplay
+        self.render_opening_exposition()
         self._init_set_up_helper_attributes()
 
     def _init_set_up_helper_attributes(self):
@@ -66,13 +67,13 @@ class Game(object):
         ]
         return random.choice(potential_selections)
 
-    def print_opening_exposition(self):
+    def render_opening_exposition(self):
         """Print the initial exposition that opens the game."""
-        print (
-            "\nIt is {nighttime_or_daytime}, {date}. You are alone in {a_house_or_apartment} at {address} "
-            "in the town of {city_name}, population {city_pop}. A deceased person lies before you. "
+        opening_exposition = (
+            "It is {nighttime_or_daytime}, {date}. You are alone in {a_house_or_apartment} at {address} "
+            "in the town of {city_name}, pop. {city_pop}. A deceased person lies before you. "
             "{pronoun} is {description}. You must locate {possessive} next of kin and inform "
-            "that person of this death.\n".format(
+            "that person of this death.".format(
                 nighttime_or_daytime='nighttime' if self.sim.time_of_day == 'night' else 'daytime',
                 date=self.sim.date[7:] if self.sim.time_of_day == 'day' else self.sim.date[9:],
                 a_house_or_apartment="a house" if self.player.location.house else "an apartment",
@@ -84,6 +85,11 @@ class Game(object):
                 possessive=self.deceased_character.possessive
             )
         )
+        if self.single_player:
+            print '\n{}\n'.format(opening_exposition)
+        else:
+            # Will display on the player interface
+            self.exposition = opening_exposition
 
     def sketch_interlocutor(self):
         """Give a basic outline of the current interlocutor."""
@@ -166,7 +172,8 @@ class Player(object):
         self.last_address_i_heard = None
         self.last_unit_number_i_heard = None
         self.last_block_i_heard = None
-        self.interlocutor = None
+        # self.interlocutor = None
+        self.interlocutor = self.game.sim.random_person
         self.subject_of_conversation = None  # Name of whom player and interlocutor are currently talking about
         self.current_list_index = 0  # Facilitates ask_to_list methods
         self.refrain = ()  # Features they keep asking about
