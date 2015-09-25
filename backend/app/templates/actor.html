@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>Wizard Interface // Bad News</title>
+	<title>Actor Interface // Bad News</title>
 	<link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
 
 <script>
@@ -16,26 +16,22 @@
 	<div id="topAreaDiv">
 		<div id="whoAmIDiv" class="mainDiv">
 			<span class="topic">My Name is:</span>
-			<span class="dynamicData"> David Grot</span> 
+			<span class="dynamicData">{{ interlocutor.full_name }}</span>
 		</div>
 
 		<div id="timeAndPlaceInfo" class="mainDiv">
 			<div class="mainDivTitle">Time and Place Info</div>
 			<div id="townNameDiv">
 				<span class="topic">Town Name:</span>
-				<span class="dynamicData">Frostbite Falls</span>
+				<span class="dynamicData">{{ player.city.name }}</span>
 			</div>
 			<div id="currentDateDiv">
 				<span class="topic">Current Date:</span>
-				<span class="dynamicData">August 19th, 1979</span>
+				<span class="dynamicData">{{ player.game.sim.date }}</span>
 			</div>
 			<div id="currentLocationDiv">
 				<span class="topic">Current Location:</span>
-				<span class="dynamicData">880 Unit #2</span>
-			</div>
-			<div id="currentTimeDiv">
-				<span class="topic">Current Time:</span>
-				<span class="dynamicData">Night</span>
+				<span class="dynamicData">{{ player.location.address }}</span>
 			</div>
 		</div>
 	</div>
