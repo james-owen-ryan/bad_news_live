@@ -21,6 +21,7 @@ class Communicator(object):
         # Text that is displayed to the player at any given point during gameplay; updated
         # periodically by the gameplay instance
         self.player_exposition = ''
+        self.player_exposition_enumeration = ''  # Enumeration of buildings, characters nearby, etc.
         # Load templates
         template_loader = jinja2.FileSystemLoader(searchpath="./templates")
         template_env = jinja2.Environment(loader=template_loader)

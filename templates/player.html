@@ -2,6 +2,7 @@
 <html>
 <head>
 	<meta charset="utf-8">
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
 	<title>Bad News</title>
     <!-- Load jQuery -->
     <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
@@ -12,6 +13,19 @@
     <style>
       .exposition {
         width: 80%;
+        text-align: center;
+        font-family: 'Quicksand', sans-serif;
+        font-weight: 400;
+        font-size: 28px;
+        line-height: 37px;
+      }
+      .enumerationBox {
+        width: 60%;
+        text-align: center;
+      }
+      .enumeration {
+        width: 100%;
+        text-align: left;
         font-family: 'Quicksand', sans-serif;
         font-weight: 400;
         font-size: 28px;
@@ -19,17 +33,18 @@
       }
     </style>
 </head>
-</center>
-</html>
-  <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
-  <center>
   <br><br>
+  <center>
   <img src="black_rectangle.png" alt="" height="42">
   <br><br><br>
   <!-- Display exposition text -->
   <div class=exposition id="exposition">
     {{ communicator.player_exposition }}
-
+  </div>
+  <div class="enumerationBox">
+    <div class=enumeration id="enumeration">
+      {{ communicator.player_exposition_enumeration }}
+    </div>
   </div>
   </center>
 </html>
