@@ -1,3 +1,4 @@
+from threading import Thread
 from flask import Flask, render_template, request
 from flask.ext.socketio import SocketIO, emit
 from bad_news import Game
@@ -44,8 +45,18 @@ def establish_connection_to_player_interface():
     emit('my response', {'data': exposition, 'count': 0})
 
 
-if __name__ == '__main__':
-    # app.run(debug=False)
-    socketio.run(app)
-else:
-    pass
+def boot_app():
+    """Boot up the app in the background."""
+    socketio.run(app, debug=False, use_reloader=False)
+
+
+def start():
+    ongoing_sim_thread = Thread(target=boot_app())
+    ongoing_sim_thread.start()
+
+
+# if __name__ == '__main__':
+#     # app.run(debug=False)
+#     socketio.run(app)
+# else:
+#     pass
