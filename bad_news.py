@@ -678,9 +678,9 @@ class Player(object):
 
     def _describe_business_interior(self):
         """Describe the interior of a business that the player is in."""
-        if len(self.location.people_here_now) > max(NUMERAL_TO_WORD):
-            people_here_intro = "There are {number} people here:".format(
-                number=len(self.location.people_here_now)
+        if len(self.location.people_here_now) > 14:
+            people_here_intro = "There are very many people here:".format(
+                len(self.location.people_here_now)
             )
         elif len(self.location.people_here_now) > 7:
             people_here_intro = "There are many people here:"
@@ -1104,6 +1104,7 @@ class Player(object):
     def wait_until(self):
         """Wait here until the next timestep."""
         self.game.advance_timestep()
+        self.observe()
 
     def notify(self):
         """Notify interlocutor that the deceased person has died."""
