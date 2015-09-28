@@ -1,27 +1,8 @@
 import jinja2
 
-# The search path can be used to make finding templates by
-#   relative paths much easier.  In this case, we are using
-#   absolute paths and thus set it to the filesystem root.
-templateLoader = jinja2.FileSystemLoader(searchpath="/")
 
-# An environment provides the data necessary to read and
-#   parse our templates.  We pass in the loader object here.
-templateEnv = jinja2.Environment( loader=templateLoader)
-
-# This constant string specifies the template file we will use.
-TEMPLATE_FILE = "/home/user/site/example1.jinja"
-
-# Read the template file using the environment object.
-# This also constructs our Template object.
-template = templateEnv.get_template( TEMPLATE_FILE )
-
-# Specify any input variables to the template as a dictionary.
-templateVars = { "title" : "Test Example",
-                 "description" : "A simple inquiry of function." }
-
-# Finally, process the template to produce our final text.
-outputText = template.render( templateVars )
+PATH_TO_PLAYER_INTERFACE_HTML_FILE = 'player_interface.html'
+PATH_TO_ACTOR_INTERFACE_HTML_FILE = 'actor_interface.html'
 
 
 class Communicator(object):
@@ -33,8 +14,36 @@ class Communicator(object):
         """Initialize a communicator object."""
         self.game = game
         self.player = game.player
-        # Text that is displayed to the player at any given point during gameplay
+        # Text that is displayed to the player at any given point during gameplay; updated
+        # periodically by the gameplay instance
         self.player_exposition = ''
+        # Load templates
+        template_loader = jinja2.FileSystemLoader(searchpath="/templates")
+        template_env = jinja2.Environment(loader=template_loader)
+        self.player_template = template_env.get_template('player.html')
+        self.actor_template = template_env.get_template('actor.html')
+
+    def update_player_interface(self):
+        """Update the player interface by re-writing its HTML file.
+
+        NOTE: It is the responsibility of the web browser that we have set up for
+        the player to constantly be reloading this page.
+        """
+        rendered_player_template = self.player_template.render(communicator=self)
+        f = open(PATH_TO_PLAYER_INTERFACE_HTML_FILE, 'w')
+        f.write(rendered_player_template)
+        f.close()
+
+    def update_actor_interface(self):
+        """Update the actor interface by re-writing its HTML file.
+
+        NOTE: It is the responsibility of the web browser that we have set up for
+        the actor to constantly be reloading this page.
+        """
+        rendered_actor_template = self.actor_template.render(communicator=self)
+        f = open(PATH_TO_ACTOR_INTERFACE_HTML_FILE, 'w')
+        f.write(rendered_actor_template)
+        f.close()
 
     @property
     def interlocutor(self):

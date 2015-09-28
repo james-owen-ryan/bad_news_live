@@ -1,5 +1,6 @@
 import sys
-PATH_TO_ANYTOWN = '/Users/jamesryan/Desktop/Projects/Personal/anytown'
+# TODO BEFORE GOING LIVE ADD ALL ANYTOWN FILES INTO THIS PROJECT DIRECTORY
+PATH_TO_ANYTOWN = '../anytown'
 sys.path.append(PATH_TO_ANYTOWN)
 
 from game import Game as Sim
@@ -95,6 +96,7 @@ class Game(object):
         else:
             # Will display on the player interface
             self.communicator.player_exposition = opening_exposition
+            self.communicator.update_player_interface()
 
     def advance_timestep(self):
         """Advance to the next timestep."""
