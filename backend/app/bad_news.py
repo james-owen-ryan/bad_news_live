@@ -33,13 +33,17 @@ class Game(object):
         print "\nPreparing for gameplay..."
         self.sim.enact_no_fi_simulation()
         self.city = self.sim.city
-        self.single_player = single_player  # Whether James is playtesting, in which case don't show everything
+        self.single_player = single_player  # Whether James is playtesting, in which case don't show hidden knowledge
         self.player = Player(game=self)
         self.deceased_character = self.select_deceased_character()
         self.player.location = self.deceased_character.location
         self.deceased_character.die('Unknown causes')
         self.nok = self.next_of_kin = self.deceased_character.next_of_kin
-        self.exposition = ''  # Text that is displayed to the player at any given point during gameplay
+        # A communicator facilitates communication between the simulation and various game interfaces
+        if not single_player:
+            self.communicator = Communicator(game=self)
+        else:
+            self.communicator = None
         self.render_opening_exposition()
         self._init_set_up_helper_attributes()
 
@@ -68,10 +72,10 @@ class Game(object):
         return random.choice(potential_selections)
 
     def render_opening_exposition(self):
-        """Print the initial exposition that opens the game."""
+        """Render the initial exposition that opens the game."""
         opening_exposition = (
-            "It is {nighttime_or_daytime}, {date}. You are alone in {a_house_or_apartment} at {address} "
-            "in the town of {city_name}, pop. {city_pop}. A deceased person lies before you. "
+            "It is {nighttime_or_daytime}, {date}. You are alone in {a_house_or_apartment} at {address}, "
+            "in the town of {city_name} pop. {city_pop}. A deceased person lies before you. "
             "{pronoun} is {description}. You must locate {possessive} next of kin and inform "
             "that person of this death.".format(
                 nighttime_or_daytime='nighttime' if self.sim.time_of_day == 'night' else 'daytime',
@@ -89,67 +93,7 @@ class Game(object):
             print '\n{}\n'.format(opening_exposition)
         else:
             # Will display on the player interface
-            self.exposition = opening_exposition
-
-    def sketch_interlocutor(self):
-        """Give a basic outline of the current interlocutor."""
-        if self.player.interlocutor and not self.single_player:
-            print '\n'
-            interlocutor = self.player.interlocutor
-            broader_skin_tone = {
-                'black': 'dark', 'brown': 'dark',
-                'beige': 'light', 'pink': 'light',
-                'white': 'light',
-            }
-            for feature_type in (
-                'full name', 'age', 'purpose here', 'other people here', 'extroversion', 'agreeableness', 'neuroticism',
-                'openness', 'conscientiousness', 'moved to town', 'marital status', 'home address',
-                'job status', 'workplace', 'workplace address', 'job title', 'job shift', 'skin color',
-                'hair color', 'hair length', 'tattoo', 'scar', 'birthmark', 'freckles', 'glasses',
-            ):
-                if feature_type == 'skin color':
-                    feature_value = broader_skin_tone[interlocutor.face.skin.color]
-                elif feature_type == "other people here":
-                    if self.player.outside:  # Talking to someone at their door/buzzer
-                        if len(self.player.interlocutor.location.people_here_now) == 1:
-                            feature_value = 'None'
-                        else:
-                            feature_value = (
-                                ', '.join(p.name for p in interlocutor.location.people_here_now-{interlocutor})
-                            )
-                    else:
-                        feature_value = '[Player can see]'
-                elif feature_type in ('extroversion', 'agreeableness', 'neuroticism', 'openness', 'conscientiousness'):
-                    feature_value = interlocutor.personality.component_str(component_letter=feature_type[0])
-                elif feature_type == "moved to town":
-                    if interlocutor.birth and interlocutor.birth.city is self.city:
-                        feature_value = "birth"
-                    else:
-                        feature_value = str(interlocutor.moves[0].year)
-                elif feature_type == "age":
-                    feature_value = str(interlocutor.age)
-                elif feature_type == "full name":
-                    feature_value = interlocutor.full_name
-                elif feature_type == "purpose here":
-                    feature_value = interlocutor.whereabouts.current_occasion
-                else:
-                    feature_value = interlocutor.get_feature(feature_type)
-                if feature_type == 'job status' and feature_value in ('retired', 'unemployed'):
-                    extra = ' (since {})'.format(
-                        'always' if not interlocutor.occupations else interlocutor.occupations[-1].terminus.year
-                    )
-                elif feature_type == 'workplace' and interlocutor.occupation:
-                    extra = ' (since {})'.format(interlocutor.occupation.start_date)
-                elif feature_type == 'home address':
-                    extra = ' (since {})'.format(interlocutor.moves[-1].year)
-                else:
-                    extra = ''
-                print "{feature_type}: {value}{extra}".format(
-                    feature_type=feature_type.capitalize(),
-                    value=feature_value,
-                    extra=extra
-                )
-            print '\n'
+            self.communicator.player_exposition = opening_exposition
 
     def advance_timestep(self):
         """Advance to the next timestep."""
@@ -437,7 +381,7 @@ class Player(object):
         if self.location.people_here_now:
             if len(self.location.people_here_now) == 1:
                 self.interlocutor = list(self.location.people_here_now)[0]
-                self.game.sketch_interlocutor()
+                # self.game.sketch_interlocutor()
                 print "\nYou are talking to {age_and_gender_nominal} with {appearance}.\n".format(
                     age_and_gender_nominal=self.interlocutor.age_and_gender_description,
                     appearance=self.interlocutor.basic_appearance_description
@@ -445,7 +389,7 @@ class Player(object):
             else:
                 if any(p for p in self.location.people_here_now if p.name == name):
                     self.interlocutor = next(p for p in self.location.people_here_now if p.name == name)
-                    self.game.sketch_interlocutor()
+                    # self.game.sketch_interlocutor()
                     print "\nYou are talking to {age_and_gender_nominal} with {appearance}.\n".format(
                         age_and_gender_nominal=self.interlocutor.age_and_gender_description,
                         appearance=self.interlocutor.basic_appearance_description
@@ -454,7 +398,7 @@ class Player(object):
                     self.interlocutor = next(
                         p for p in self.location.people_here_now if p.temp_address_number == address_number
                     )
-                    self.game.sketch_interlocutor()
+                    # self.game.sketch_interlocutor()
                     print "\nYou are talking to {age_and_gender_nominal} with {appearance}.\n".format(
                         age_and_gender_nominal=self.interlocutor.age_and_gender_description,
                         appearance=self.interlocutor.basic_appearance_description
@@ -974,7 +918,7 @@ class Player(object):
         answerer = self._determine_who_answers_buzzer_or_doorbell(dwelling_place=self.location)
         if answerer:
             self.interlocutor = answerer
-            self.game.sketch_interlocutor()
+            # self.game.sketch_interlocutor()
         verb_phrase = 'comes to the gate' if self.location.lot.tract else 'answers the door'
         if answerer in self.people_i_know_by_name:
             print '\n{answerer_name} {answers}.\n'.format(
@@ -1008,7 +952,7 @@ class Player(object):
             )
         if answerer:
             self.interlocutor = answerer
-            self.game.sketch_interlocutor()
+            # self.game.sketch_interlocutor()
         if answerer:
             print '{} speaks into the intercom.\n'.format(
                 answerer.age_and_gender_description
@@ -1113,3 +1057,275 @@ class Player(object):
     def hinge(self, address_number=None):
         """Wrapper around talk_about_hinge()."""
         self.talk_about_hinge(address_number=address_number)
+
+
+class Communicator(object):
+    """A helper class that sends mediates communication between the simulation and
+    our various game interfaces.
+    """
+
+    def __init__(self, game):
+        """Initialize a communicator object."""
+        self.game = game
+        self.player = game.player
+        # Text that is displayed to the player at any given point during gameplay
+        self.player_exposition = ''
+
+    @property
+    def interlocutor(self):
+        """Return the player's current interlocutor."""
+        return self.player.interlocutor
+
+    @property
+    def city_name(self):
+        """Return the name of the city gameplay is taking place in."""
+        return self.game.city.name
+
+    @property
+    def current_date(self):
+        """Return the name of the city gameplay is taking place in."""
+        return self.game.sim.date
+
+    @property
+    def interlocutor_location_name(self):
+        """Return the address of the interlocutor's location."""
+        if self.interlocutor:
+            return self.interlocutor.location.name
+        else:
+            return '-'
+
+    @property
+    def interlocutor_location_address(self):
+        """Return the address of the interlocutor's location."""
+        if self.interlocutor:
+            return self.interlocutor.location.address
+        else:
+            return '-'
+
+    @property
+    def interlocutor_full_name(self):
+        """Return the interlocutor's full name."""
+        if self.interlocutor:
+            return self.interlocutor.full_name
+        else:
+            return '-'
+
+    @property
+    def interlocutor_age(self):
+        """Return the interlocutor's age."""
+        if self.interlocutor:
+            return str(self.game.player.interlocutor.age)
+        else:
+            return '-'
+
+    @property
+    def interlocutor_purpose_here(self):
+        """Return the interlocutor's purpose for being at his or her current location."""
+        if self.interlocutor:
+            return self.interlocutor.whereabouts.current_occasion
+        else:
+            return '-'
+
+    @property
+    def interlocutor_other_people_here(self):
+        """Return the other people at interlocutor's current location, if they're not visible to the player."""
+        if self.interlocutor:
+            if self.player.outside:  # Talking to someone at their door/buzzer
+                if len(self.interlocutor.location.people_here_now) == 1:
+                    people_here_now_str = 'None'
+                else:
+                    people_here_now_str = (
+                        ', '.join(p.name for p in self.interlocutor.location.people_here_now-{self.interlocutor})
+                    )
+            else:
+                people_here_now_str = '[Player can see]'
+            return people_here_now_str
+        else:
+            return '-'
+
+    @property
+    def interlocutor_openness(self):
+        """Return the interlocutor's openness-to-experience string."""
+        if self.interlocutor:
+            return self.interlocutor.personality.component_str(component_letter='o')
+        else:
+            return '-'
+
+    @property
+    def interlocutor_conscientiousness(self):
+        """Return the interlocutor's conscientiousness string."""
+        if self.interlocutor:
+            return self.interlocutor.personality.component_str(component_letter='c')
+        else:
+            return '-'
+
+    @property
+    def interlocutor_extroversion(self):
+        """Return the interlocutor's extroversion string."""
+        if self.interlocutor:
+            return self.interlocutor.personality.component_str(component_letter='e')
+        else:
+            return '-'
+
+    @property
+    def interlocutor_agreeableness(self):
+        """Return the interlocutor's agreeableness string."""
+        if self.interlocutor:
+            return self.interlocutor.personality.component_str(component_letter='a')
+        else:
+            return '-'
+
+    @property
+    def interlocutor_neuroticism(self):
+        """Return the interlocutor's neuroticism string."""
+        if self.interlocutor:
+            return self.interlocutor.personality.component_str(component_letter='n')
+        else:
+            return '-'
+
+    @property
+    def interlocutor_moved_to_town_when(self):
+        """Return when interlocutor moved to town."""
+        if self.interlocutor:
+            if self.interlocutor.birth and self.interlocutor.birth.city is self.game.city:
+                return "birth"
+            else:
+                return str(self.interlocutor.moves[0].year)
+        else:
+            return '-'
+
+    @property
+    def interlocutor_marital_status(self):
+        """Return the interlocutor's marital status."""
+        if self.interlocutor:
+            return self.interlocutor.get_feature('marital status')
+        else:
+            return '-'
+
+    @property
+    def interlocutor_home_address(self):
+        """Return the interlocutor's home address."""
+        if self.interlocutor:
+            since_when = ' (since {})'.format(self.interlocutor.moves[-1].year)
+            return self.interlocutor.get_feature('home address') + since_when
+        else:
+            return '-'
+
+    @property
+    def interlocutor_job_status(self):
+        """Return the interlocutor's job status."""
+        if self.interlocutor:
+            job_status = self.interlocutor.get_feature('job status')
+            if job_status in ('retired', 'unemployed'):
+                job_status += ' (since {})'.format(
+                    'always' if not self.interlocutor.occupations else
+                    self.interlocutor.occupations[-1].terminus.year
+                )
+            return job_status
+
+        else:
+            return '-'
+
+    @property
+    def interlocutor_workplace(self):
+        """Return the name of the interlocutor's workplace, if any."""
+        if self.interlocutor:
+            workplace = self.interlocutor.get_feature('workplace')
+            if self.interlocutor.occupation:
+                workplace += ' (since {})'.format(self.interlocutor.occupation.start_date)
+            return workplace
+        else:
+            return '-'
+
+    @property
+    def interlocutor_workplace_address(self):
+        """Return the address of the interlocutor's workplace, if any."""
+        if self.interlocutor:
+            return self.interlocutor.get_feature('workplace address')
+        else:
+            return '-'
+
+    @property
+    def interlocutor_job_title(self):
+        """Return the interlocutor's job title, if any."""
+        if self.interlocutor:
+            return self.interlocutor.get_feature('job title')
+        else:
+            return '-'
+
+    @property
+    def interlocutor_job_shift(self):
+        """Return the interlocutor's job shift, if any."""
+        if self.interlocutor:
+            return self.interlocutor.get_feature('job shift').capitalize()
+        else:
+            return '-'
+
+    @property
+    def interlocutor_skin_color(self):
+        """Return the interlocutor's skin color."""
+        if self.interlocutor:
+            broader_skin_tone = {
+                'black': 'dark', 'brown': 'dark',
+                'beige': 'light', 'pink': 'light',
+                'white': 'light',
+            }
+            return broader_skin_tone[self.interlocutor.face.skin.color]
+        else:
+            return '-'
+
+    @property
+    def interlocutor_hair_length(self):
+        """Return the interlocutor's hair length."""
+        if self.interlocutor:
+            return self.interlocutor.get_feature('hair length')
+        else:
+            return '-'
+
+    @property
+    def interlocutor_hair_color(self):
+        """Return the interlocutor's hair color."""
+        if self.interlocutor:
+            return self.interlocutor.get_feature('hair color')
+        else:
+            return '-'
+
+    @property
+    def interlocutor_tattoo(self):
+        """Return whether the interlocutor has a visible tattoo."""
+        if self.interlocutor:
+            return self.interlocutor.get_feature('tattoo')
+        else:
+            return '-'
+
+    @property
+    def interlocutor_scar(self):
+        """Return whether the interlocutor has a visible scar."""
+        if self.interlocutor:
+            return self.interlocutor.get_feature('scar')
+        else:
+            return '-'
+
+    @property
+    def interlocutor_birthmark(self):
+        """Return whether the interlocutor has a visible birthmark."""
+        if self.interlocutor:
+            return self.interlocutor.get_feature('birthmark')
+        else:
+            return '-'
+
+    @property
+    def interlocutor_freckles(self):
+        """Return whether the interlocutor has freckles."""
+        if self.interlocutor:
+            return self.interlocutor.get_feature('freckles')
+        else:
+            return '-'
+
+    @property
+    def interlocutor_glasses(self):
+        """Return whether the interlocutor wears glasses."""
+        if self.interlocutor:
+            return self.interlocutor.get_feature('glasses')
+        else:
+            return '-'
