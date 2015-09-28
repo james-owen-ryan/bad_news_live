@@ -278,24 +278,26 @@ class Player(object):
 
     def approach(self, house_number=None):
         """Move the player to the building on her current block with the given house number."""
-        if self.location.__class__.__name__ != 'Block':
-            self.location = self.location.block
-        building_to_approach = None
-        if not house_number:
+        if house_number < 100:
+            print 'I think you meant to call address(), not approach().'
+        elif not house_number:
+            print "\nYou need to specify a house number to approach.\n"
+        else:
+            if self.location.__class__.__name__ != 'Block':
+                self.location = self.location.block
+            building_to_approach = None
             if len(self.location.buildings) == 1:
                 building_to_approach = list(self.location.buildings)[0]
             else:
-                print "\nYou need to specify a house number to approach.\n"
-        else:
-            try:
-                building_to_approach = next(b for b in self.location.buildings if b.house_number == house_number)
-            except StopIteration:
-                print "\nThere is no building on this block with the house number {}\n".format(house_number)
-        if building_to_approach:
-            self.location = building_to_approach
-            self.outside = True
-            self.places_i_have_been.append(self.location)
-            self.observe()
+                try:
+                    building_to_approach = next(b for b in self.location.buildings if b.house_number == house_number)
+                except StopIteration:
+                    print "\nThere is no building on this block with the house number {}\n".format(house_number)
+            if building_to_approach:
+                self.location = building_to_approach
+                self.outside = True
+                self.places_i_have_been.append(self.location)
+                self.observe()
 
     def approach_apt(self, unit_number=None):
         """Move the player to the unit of the apartment she is currently outside with the given unit number."""
@@ -358,7 +360,7 @@ class Player(object):
         self.location = self.location.block
         self.observe()
 
-    def observe(self, exposition_prefix=None):
+    def observe(self, exposition_prefix=None, update_enumeration_only=False):
         """Describe the player's current setting."""
         if self.outside:  # Interior scenes
             if self.location.type == 'block':
@@ -390,7 +392,10 @@ class Player(object):
             if exposition_prefix:
                 exposition = exposition_prefix + '<br><br>' + exposition
             exposition = exposition.replace('\n', '<br>')
-            self.game.communicator.player_exposition = exposition
+            if not update_enumeration_only:
+                # update_enumeration_only will be True when remember() calls this
+                # method to update the enumeration to include an NPC's name
+                self.game.communicator.player_exposition = exposition
             self.game.communicator.player_exposition_enumeration = enumeration
             self.game.communicator.update_player_interface()
 
@@ -757,29 +762,32 @@ class Player(object):
             if len(self.location.people_here_now) == 1:
                 self.interlocutor = list(self.location.people_here_now)[0]
                 self.game.communicator.update_actor_interface()
-                exposition = "You are talking to {age_and_gender_nominal} with {appearance} [{i}].".format(
+                exposition = "You are talking to {age_and_gender_nominal} with {appearance} [{i}]. {nearby}".format(
                     age_and_gender_nominal=self.interlocutor.age_and_gender_description,
                     appearance=self.interlocutor.basic_appearance_description,
-                    i=self.interlocutor.temp_address_number
+                    i='<b>{}</b>'.format(self.interlocutor.temp_address_number),
+                    nearby="The following people are still nearby:" if not self.game.offline_mode else ''
                 )
             else:
                 if any(p for p in self.location.people_here_now if p.name == name):
                     self.interlocutor = next(p for p in self.location.people_here_now if p.name == name)
                     self.game.communicator.update_actor_interface()
-                    exposition = "You are talking to {age_and_gender_nominal} with {appearance} [{i}].".format(
+                    exposition = "You are talking to {age_and_gender_nominal} with {appearance} [{i}]. {nearby}".format(
                         age_and_gender_nominal=self.interlocutor.age_and_gender_description,
                         appearance=self.interlocutor.basic_appearance_description,
-                        i=self.interlocutor.temp_address_number
+                        i='<b>{}</b>'.format(self.interlocutor.temp_address_number),
+                        nearby="The following people are still nearby:" if not self.game.offline_mode else ''
                     )
                 elif any(p for p in self.location.people_here_now if p.temp_address_number == address_number):
                     self.interlocutor = next(
                         p for p in self.location.people_here_now if p.temp_address_number == address_number
                     )
                     self.game.communicator.update_actor_interface()
-                    exposition = "You are talking to {age_and_gender_nominal} with {appearance} [{i}].".format(
+                    exposition = "You are talking to {age_and_gender_nominal} with {appearance} [{i}]. {nearby}".format(
                         age_and_gender_nominal=self.interlocutor.age_and_gender_description,
                         appearance=self.interlocutor.basic_appearance_description,
-                        i=self.interlocutor.temp_address_number
+                        i='<b>{}</b>'.format(self.interlocutor.temp_address_number),
+                        nearby="The following people are still nearby:" if not self.game.offline_mode else ''
                     )
                 else:
                     exposition = "I'm not sure whom you met.".format(name)
@@ -980,6 +988,7 @@ class Player(object):
     def remember(self):
         """Remember the name of the person you are talking to."""
         self.people_i_know_by_name.add(self.interlocutor)
+        self.observe(exposition_prefix=None, update_enumeration_only=True)
 
     def ring(self):
         """Print exposition surrounding the ringing of a doorbell."""
