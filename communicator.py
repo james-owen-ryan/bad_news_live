@@ -1,8 +1,12 @@
 import jinja2
+from paramiko import SSHClient
+from scp import SCPClient
 
 
-PATH_TO_PLAYER_INTERFACE_HTML_FILE = 'player_interface.html'
-PATH_TO_ACTOR_INTERFACE_HTML_FILE = 'actor_interface.html'
+PATH_TO_PLAYER_INTERFACE_HTML_FILE = '/Users/jamesryan/Downloads/player_interface.html'
+PATH_TO_ACTOR_INTERFACE_HTML_FILE = '/Users/jamesryan/Downloads/actor_interface.html'
+
+ZZZ = open('/Users/jamesryan/Downloads/zzz.txt').readline().capitalize()
 
 
 class Communicator(object):
@@ -18,7 +22,7 @@ class Communicator(object):
         # periodically by the gameplay instance
         self.player_exposition = ''
         # Load templates
-        template_loader = jinja2.FileSystemLoader(searchpath="/templates")
+        template_loader = jinja2.FileSystemLoader(searchpath="./templates")
         template_env = jinja2.Environment(loader=template_loader)
         self.player_template = template_env.get_template('player.html')
         self.actor_template = template_env.get_template('actor.html')
@@ -29,10 +33,18 @@ class Communicator(object):
         NOTE: It is the responsibility of the web browser that we have set up for
         the player to constantly be reloading this page.
         """
+        # Fill in the template
         rendered_player_template = self.player_template.render(communicator=self)
+        # Write that out as a local file
         f = open(PATH_TO_PLAYER_INTERFACE_HTML_FILE, 'w')
         f.write(rendered_player_template)
         f.close()
+        # SCP that local file so that it is web-facing from my BSOE account
+        ssh = SSHClient()
+        ssh.load_system_host_keys()
+        ssh.connect(hostname='soe.ucsc.edu', username='jor', password=ZZZ)
+        scp = SCPClient(ssh.get_transport())
+        scp.put(PATH_TO_PLAYER_INTERFACE_HTML_FILE, '~/.html/bad_news/player.html')
 
     def update_actor_interface(self):
         """Update the actor interface by re-writing its HTML file.
@@ -40,10 +52,18 @@ class Communicator(object):
         NOTE: It is the responsibility of the web browser that we have set up for
         the actor to constantly be reloading this page.
         """
+        # Fill in the template
         rendered_actor_template = self.actor_template.render(communicator=self)
+        # Write that out as a local file
         f = open(PATH_TO_ACTOR_INTERFACE_HTML_FILE, 'w')
         f.write(rendered_actor_template)
         f.close()
+        # SCP that local file so that it is web-facing from my BSOE account
+        ssh = SSHClient()
+        ssh.load_system_host_keys()
+        ssh.connect(hostname='soe.ucsc.edu', username='jor', password=ZZZ)
+        scp = SCPClient(ssh.get_transport())
+        scp.put(PATH_TO_ACTOR_INTERFACE_HTML_FILE, '~/.html/bad_news/actor.html')
 
     @property
     def interlocutor(self):

@@ -76,8 +76,8 @@ class Game(object):
     def render_opening_exposition(self):
         """Render the initial exposition that opens the game."""
         opening_exposition = (
-            "It is {nighttime_or_daytime}, {date}. You are alone in {a_house_or_apartment} at {address}, "
-            "in the town of {city_name} pop. {city_pop}. A deceased person lies before you. "
+            "It is {nighttime_or_daytime}, {date}. You are alone in {a_house_or_apartment} at {address} "
+            "in the town of {city_name}, pop. {city_pop}. A deceased person lies before you. "
             "{pronoun} is {description}. You must locate {possessive} next of kin and inform "
             "that person of this death.".format(
                 nighttime_or_daytime='nighttime' if self.sim.time_of_day == 'night' else 'daytime',
@@ -97,6 +97,9 @@ class Game(object):
             # Will display on the player interface
             self.communicator.player_exposition = opening_exposition
             self.communicator.update_player_interface()
+            # TEST DELETE TODO
+            self.player.interlocutor = self.sim.random_person
+            self.communicator.update_actor_interface()
 
     def advance_timestep(self):
         """Advance to the next timestep."""
@@ -384,7 +387,7 @@ class Player(object):
         if self.location.people_here_now:
             if len(self.location.people_here_now) == 1:
                 self.interlocutor = list(self.location.people_here_now)[0]
-                # self.game.sketch_interlocutor()
+                self.game.communicator.update_actor_interface()
                 print "\nYou are talking to {age_and_gender_nominal} with {appearance}.\n".format(
                     age_and_gender_nominal=self.interlocutor.age_and_gender_description,
                     appearance=self.interlocutor.basic_appearance_description
@@ -392,7 +395,7 @@ class Player(object):
             else:
                 if any(p for p in self.location.people_here_now if p.name == name):
                     self.interlocutor = next(p for p in self.location.people_here_now if p.name == name)
-                    # self.game.sketch_interlocutor()
+                    self.game.communicator.update_actor_interface()
                     print "\nYou are talking to {age_and_gender_nominal} with {appearance}.\n".format(
                         age_and_gender_nominal=self.interlocutor.age_and_gender_description,
                         appearance=self.interlocutor.basic_appearance_description
@@ -401,7 +404,7 @@ class Player(object):
                     self.interlocutor = next(
                         p for p in self.location.people_here_now if p.temp_address_number == address_number
                     )
-                    # self.game.sketch_interlocutor()
+                    self.game.communicator.update_actor_interface()
                     print "\nYou are talking to {age_and_gender_nominal} with {appearance}.\n".format(
                         age_and_gender_nominal=self.interlocutor.age_and_gender_description,
                         appearance=self.interlocutor.basic_appearance_description
@@ -921,7 +924,7 @@ class Player(object):
         answerer = self._determine_who_answers_buzzer_or_doorbell(dwelling_place=self.location)
         if answerer:
             self.interlocutor = answerer
-            # self.game.sketch_interlocutor()
+            self.game.communicator.update_actor_interface()
         verb_phrase = 'comes to the gate' if self.location.lot.tract else 'answers the door'
         if answerer in self.people_i_know_by_name:
             print '\n{answerer_name} {answers}.\n'.format(
@@ -955,7 +958,7 @@ class Player(object):
             )
         if answerer:
             self.interlocutor = answerer
-            # self.game.sketch_interlocutor()
+            self.game.communicator.update_actor_interface()
         if answerer:
             print '{} speaks into the intercom.\n'.format(
                 answerer.age_and_gender_description
@@ -1060,3 +1063,10 @@ class Player(object):
     def hinge(self, address_number=None):
         """Wrapper around talk_about_hinge()."""
         self.talk_about_hinge(address_number=address_number)
+
+
+single_player = False
+bn = Game(single_player=single_player)
+pc = bn.player
+d = bn.deceased_character
+nok = bn.next_of_kin
