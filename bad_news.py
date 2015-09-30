@@ -902,7 +902,8 @@ class Player(object):
             p for p in self.interlocutor.matches if p.temp_address_number == address_number
         )
         if not self.game.offline_mode:
-            self.interlocutor.mind.mental_models[self.subject_of_conversation].outline()
+            self.game.communicator.update_actor_interface()
+            # self.interlocutor.mind.mental_models[self.subject_of_conversation].outline()
         if self.interlocutor.mind.mental_models[self.subject_of_conversation].relations_to_me:
             self.interlocutor.hinges = [
                 self.interlocutor.mind.mental_models[self.subject_of_conversation].relations_to_me[0][1]
@@ -919,7 +920,8 @@ class Player(object):
                 p for p in self.interlocutor.hinges if p.temp_address_number == address_number
             )
         if not self.game.offline_mode:
-            self.interlocutor.mind.mental_models[self.subject_of_conversation].outline()
+            self.game.communicator.update_actor_interface()
+            # self.interlocutor.mind.mental_models[self.subject_of_conversation].outline()
         if self.interlocutor.mind.mental_models[self.subject_of_conversation].relations_to_me:
             self.interlocutor.hinges = [
                 self.interlocutor.mind.mental_models[self.subject_of_conversation].relations_to_me[0][1]

@@ -324,3 +324,335 @@ class Communicator(object):
             return self.interlocutor.get_feature('glasses')
         else:
             return '-'
+
+    @property
+    def interlocutor_knowledge_of_subject_first_name(self):
+        """Return the interlocutor's conception of the subject of conversation's first name."""
+        if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
+            mental_model = self.interlocutor.mind.mental_models[self.player.subject_of_conversation]
+            facet = mental_model.name.first_name
+            if facet == '':
+                facet = '[forgot]'
+            return "{value} ({confidence})".format(
+                value=facet if facet else '?',
+                confidence='-' if not facet or facet == '[forgot]' else facet.strength_str
+            )
+        else:
+            return ''
+
+    @property
+    def interlocutor_knowledge_of_subject_last_name(self):
+        """Return the interlocutor's conception of the subject of conversation's middle name."""
+        if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
+            mental_model = self.interlocutor.mind.mental_models[self.player.subject_of_conversation]
+            facet = mental_model.name.last_name
+            if facet == '':
+                facet = '[forgot]'
+            return "{value} ({confidence})".format(
+                value=facet if facet else '?',
+                confidence='-' if not facet or facet == '[forgot]' else facet.strength_str
+            )
+        else:
+            return ''
+
+    @property
+    def interlocutor_knowledge_of_subject_status(self):
+        """Return the interlocutor's conception of the subject of conversation's status."""
+        if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
+            mental_model = self.interlocutor.mind.mental_models[self.player.subject_of_conversation]
+            facet = mental_model.status.status
+            if facet == '':
+                facet = '[forgot]'
+            return "{value} ({confidence})".format(
+                value=facet if facet else '?',
+                confidence='-' if not facet or facet == '[forgot]' else facet.strength_str
+            )
+        else:
+            return ''
+
+    @property
+    def interlocutor_knowledge_of_subject_death_year(self):
+        """Return the interlocutor's conception of the subject of conversation's death year."""
+        if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
+            mental_model = self.interlocutor.mind.mental_models[self.player.subject_of_conversation]
+            facet = mental_model.age.death_year
+            if facet == '':
+                facet = '[forgot]'
+            return "{value} ({confidence})".format(
+                value=facet if facet else '?',
+                confidence='-' if not facet or facet == '[forgot]' else facet.strength_str
+            )
+        else:
+            return ''
+
+    @property
+    def interlocutor_knowledge_of_subject_departure_year(self):
+        """Return the interlocutor's conception of the subject of conversation's departure year."""
+        if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
+            mental_model = self.interlocutor.mind.mental_models[self.player.subject_of_conversation]
+            facet = mental_model.status.departure_year
+            if facet == '':
+                facet = '[forgot]'
+            return "{value} ({confidence})".format(
+                value=facet if facet else '?',
+                confidence='-' if not facet or facet == '[forgot]' else facet.strength_str
+            )
+        else:
+            return ''
+
+    @property
+    def interlocutor_knowledge_of_subject_relations_to_them(self):
+        """Return the interlocutor's conception of the subject of conversation's relations to them."""
+        if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
+            mental_model = self.interlocutor.mind.mental_models[self.player.subject_of_conversation]
+            relations_to_me = list(mental_model.relations_to_me)
+            if len(relations_to_me) > 1:
+                and_n_more_str = " (and {} more)".format(len(relations_to_me)-1)
+            else:
+                and_n_more_str = ""
+            return "{relation}{and_n_more}".format(
+                relation='None' if not relations_to_me else relations_to_me[0][0],
+                and_n_more=and_n_more_str
+            )
+        else:
+            return ''
+
+    @property
+    def interlocutor_charge_of_subject(self):
+        """Return the interlocutor's conception of the subject of conversation's relations to them."""
+        if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
+            if self.player.subject_of_conversation in self.interlocutor.relationships:
+                charge_str = self.interlocutor.relationships[self.player.subject_of_conversation].charge_str
+            else:
+                charge_str = '-'
+            return charge_str
+        else:
+            return ''
+
+    @property
+    def interlocutor_spark_of_subject(self):
+        """Return the interlocutor's charge toward the subject of conversation."""
+        if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
+            if self.player.subject_of_conversation in self.interlocutor.relationships:
+                spark_str = self.interlocutor.relationships[self.player.subject_of_conversation].spark_str
+            else:
+                spark_str = '-'
+            return spark_str
+        else:
+            return ''
+
+    @property
+    def interlocutor_knowledge_of_subject_age(self):
+        """Return the interlocutor's conception of the subject of conversation's age."""
+        if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
+            mental_model = self.interlocutor.mind.mental_models[self.player.subject_of_conversation]
+            if mental_model.age.exact and mental_model.age.exact != '':
+                if mental_model.age.death_year and mental_model.age.death_year != 'None':
+                    least_confident_about = min(
+                        mental_model.age.birth_year, mental_model.age.death_year, key=lambda facet: facet.strength
+                    )
+                    strength_str = least_confident_about.strength_str
+                else:
+                    # Owner believes person is still alive, so strength of this exact-age
+                    # belief is actually just the strength of the belief about the birth year
+                    strength_str = mental_model.age.birth_year.strength_str
+                return "{exact_age} ({confidence})".format(
+                    exact_age=mental_model.age.exact,
+                    confidence=strength_str
+                )
+            else:
+                facet = mental_model.age.approximate_age
+                if facet == '':
+                    facet = '[forgot]'
+                return "{value} ({confidence})".format(
+                    value=facet if facet else '?',
+                    confidence='-' if not facet or facet == '[forgot]' else facet.strength_str
+                )
+        else:
+            return ''
+
+    @property
+    def interlocutor_knowledge_of_subject_job_status(self):
+        """Return the interlocutor's conception of the subject of conversation's job status."""
+        if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
+            mental_model = self.interlocutor.mind.mental_models[self.player.subject_of_conversation]
+            facet = mental_model.occupation.status
+            if facet == '':
+                facet = '[forgot]'
+            return "{value} ({confidence})".format(
+                value=facet if facet else '?',
+                confidence='-' if not facet or facet == '[forgot]' else facet.strength_str
+            )
+        else:
+            return ''
+
+    @property
+    def interlocutor_knowledge_of_subject_job_title(self):
+        """Return the interlocutor's conception of the subject of conversation's job title."""
+        if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
+            mental_model = self.interlocutor.mind.mental_models[self.player.subject_of_conversation]
+            facet = mental_model.occupation.job_title
+            if facet == '':
+                facet = '[forgot]'
+            return "{value} ({confidence})".format(
+                value=facet if facet else '?',
+                confidence='-' if not facet or facet == '[forgot]' else facet.strength_str
+            )
+        else:
+            return ''
+
+    @property
+    def interlocutor_knowledge_of_subject_job_shift(self):
+        """Return the interlocutor's conception of the subject of conversation's job shift."""
+        if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
+            mental_model = self.interlocutor.mind.mental_models[self.player.subject_of_conversation]
+            facet = mental_model.occupation.shift
+            if facet == '':
+                facet = '[forgot]'
+            return "{value} ({confidence})".format(
+                value=facet if facet else '?',
+                confidence='-' if not facet or facet == '[forgot]' else facet.strength_str
+            )
+        else:
+            return ''
+
+    @property
+    def interlocutor_knowledge_of_subject_workplace(self):
+        """Return the interlocutor's conception of the subject of conversation's workplace."""
+        if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
+            mental_model = self.interlocutor.mind.mental_models[self.player.subject_of_conversation]
+            facet = mental_model.occupation.company
+            if facet == '':
+                facet = '[forgot]'
+            return "{value} ({confidence})".format(
+                value=facet if facet else '?',
+                confidence='-' if not facet or facet == '[forgot]' else facet.strength_str
+            )
+        else:
+            return ''
+
+    @property
+    def interlocutor_knowledge_of_subject_skin_color(self):
+        """Return the interlocutor's conception of the subject of conversation's skin color."""
+        if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
+            broader_skin_tone = {
+                'black': 'dark', 'brown': 'dark',
+                'beige': 'light', 'pink': 'light',
+                'white': 'light', '[forgot]': '[forgot]'
+            }
+            mental_model = self.interlocutor.mind.mental_models[self.player.subject_of_conversation]
+            facet = mental_model.face.skin.color
+            if facet == '':
+                facet = '[forgot]'
+            return "{tone} ({confidence})".format(
+                tone=broader_skin_tone[facet] if mental_model.face.skin.color else '?',
+                confidence='-' if not mental_model.face.skin.color or facet == '[forgot]' else
+                mental_model.face.skin.color.strength_str
+            )
+        else:
+            return ''
+
+    @property
+    def interlocutor_knowledge_of_subject_hair_color(self):
+        """Return the interlocutor's conception of the subject of conversation's hair color."""
+        if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
+            mental_model = self.interlocutor.mind.mental_models[self.player.subject_of_conversation]
+            facet = mental_model.face.hair.color
+            if facet == '':
+                facet = '[forgot]'
+            return "{value} ({confidence})".format(
+                value=facet if facet else '?',
+                confidence='-' if not facet or facet == '[forgot]' else facet.strength_str
+            )
+        else:
+            return ''
+
+    @property
+    def interlocutor_knowledge_of_subject_hair_length(self):
+        """Return the interlocutor's conception of the subject of conversation's hair length."""
+        if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
+            mental_model = self.interlocutor.mind.mental_models[self.player.subject_of_conversation]
+            facet = mental_model.face.hair.length
+            if facet == '':
+                facet = '[forgot]'
+            return "{value} ({confidence})".format(
+                value=facet if facet else '?',
+                confidence='-' if not facet or facet == '[forgot]' else facet.strength_str
+            )
+        else:
+            return ''
+
+    @property
+    def interlocutor_knowledge_of_subject_tattoo(self):
+        """Return the interlocutor's conception of the subject of conversation's tattoo, if any."""
+        if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
+            mental_model = self.interlocutor.mind.mental_models[self.player.subject_of_conversation]
+            facet = mental_model.face.distinctive_features.tattoo
+            if facet == '':
+                facet = '[forgot]'
+            return "{value} ({confidence})".format(
+                value=facet if facet else '?',
+                confidence='-' if not facet or facet == '[forgot]' else facet.strength_str
+            )
+        else:
+            return ''
+
+    @property
+    def interlocutor_knowledge_of_subject_scar(self):
+        """Return the interlocutor's conception of the subject of conversation's scar, if any."""
+        if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
+            mental_model = self.interlocutor.mind.mental_models[self.player.subject_of_conversation]
+            facet = mental_model.face.distinctive_features.scar
+            if facet == '':
+                facet = '[forgot]'
+            return "{value} ({confidence})".format(
+                value=facet if facet else '?',
+                confidence='-' if not facet or facet == '[forgot]' else facet.strength_str
+            )
+        else:
+            return ''
+
+    @property
+    def interlocutor_knowledge_of_subject_birthmark(self):
+        """Return the interlocutor's conception of the subject of conversation's birthmark, if any."""
+        if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
+            mental_model = self.interlocutor.mind.mental_models[self.player.subject_of_conversation]
+            facet = mental_model.face.distinctive_features.birthmark
+            if facet == '':
+                facet = '[forgot]'
+            return "{value} ({confidence})".format(
+                value=facet if facet else '?',
+                confidence='-' if not facet or facet == '[forgot]' else facet.strength_str
+            )
+        else:
+            return ''
+
+    @property
+    def interlocutor_knowledge_of_subject_freckles(self):
+        """Return the interlocutor's conception of the subject of conversation's freckles, if any."""
+        if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
+            mental_model = self.interlocutor.mind.mental_models[self.player.subject_of_conversation]
+            facet = mental_model.face.distinctive_features.freckles
+            if facet == '':
+                facet = '[forgot]'
+            return "{value} ({confidence})".format(
+                value=facet if facet else '?',
+                confidence='-' if not facet or facet == '[forgot]' else facet.strength_str
+            )
+        else:
+            return ''
+
+    @property
+    def interlocutor_knowledge_of_subject_glasses(self):
+        """Return the interlocutor's conception of the subject of conversation's glasses, if any."""
+        if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
+            mental_model = self.interlocutor.mind.mental_models[self.player.subject_of_conversation]
+            facet = mental_model.face.distinctive_features.glasses
+            if facet == '':
+                facet = '[forgot]'
+            return "{value} ({confidence})".format(
+                value=facet if facet else '?',
+                confidence='-' if not facet or facet == '[forgot]' else facet.strength_str
+            )
+        else:
+            return ''

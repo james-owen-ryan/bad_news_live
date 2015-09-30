@@ -13,40 +13,37 @@
 <body>
 
 <div id="mainArea">
-	<div id="topAreaDiv">
-		<div id="whoAmIDiv" class="mainDiv">
-			<span class="topic">My Name is:</span>
-			<span class="dynamicData">{{ communicator.interlocutor_full_name }}</span>
-		</div>
-
-		<div id="timeAndPlaceInfo" class="mainDiv">
-			<div class="mainDivTitle">Time and Place Info</div>
-			<div id="townNameDiv">
-				<span class="topic">Town Name:</span>
-				<span class="dynamicData">{{ communicator.city_name }}</span>
-			</div>
-			<div id="currentDateDiv">
-				<span class="topic">Current Date:</span>
-				<span class="dynamicData">{{ communicator.current_date }}</span>
-			</div>
-			<div id="currentLocationDiv">
-				<span class="topic">My Location:</span>
-				<span class="dynamicData">{{ communicator.interlocutor_location_name }}</span>
-			</div>
-            <div id="currentAddressDiv">
-				<span class="topic">Address Here:</span>
-				<span class="dynamicData">{{ communicator.interlocutor_location_address }}</span>
-			</div>
-		</div>
-	</div>
-
 	<div id="characterDescriptionArea">
-		<div id="physicalDescription" class="mainDiv">
+		<div id="description" class="mainDiv">
+			<div class="mainDivTitle">Description</div>
+            <div class="innerDiv">
+				<span class="topic">Extroversion:</span>
+				<span id="extroversion" class="dynamicData">{{ communicator.interlocutor_extroversion }}</span>
+			</div>
+			<div class="innerDiv">
+				<span class="topic">Agreeableness:</span>
+				<span id="agreeableness" class="dynamicData">{{ communicator.interlocutor_agreeableness }}</span>
+			</div>
+			<div class="innerDiv">
+				<span class="topic">Neuroticism:</span>
+				<span id="neuroticism" class="dynamicData">{{ communicator.interlocutor_neuroticism }}</span>
+			</div>
+			<div class="innerDiv">
+				<span class="topic">Openness:</span>
+				<span id="openness" class="dynamicData">{{ communicator.interlocutor_openness }}</span>
+			</div>
+			<div class="innerDiv">
+				<span class="topic">Conscientiousness:</span>
+				<span id="conscientiousness" class="dynamicData">{{ communicator.interlocutor_conscientiousness }}</span>
+			</div>
+			<div class="innerDiv">
+				<span class="topic">Personality Type Summary:</span>
+				<span id="summary" class="dynamicData">?????</span>
+			</div>
             <div class="innerDiv">
 				<span class="topic">Age:</span>
 				<span id="age" class="dynamicData">{{ communicator.interlocutor_age }}</span>
 			</div>
-			<div class="mainDivTitle">Physical Description</div>
             <div class="innerDiv">
 				<span class="topic">Skin:</span>
 				<span id="skin" class="dynamicData">{{ communicator.interlocutor_skin_color }}</span>
@@ -76,34 +73,6 @@
             <div class="innerDiv">
 				<span class="topic">Glasses:</span>
 				<span id="glasses" class="dynamicData">{{ communicator.interlocutor_glasses }}</span>
-			</div>
-		</div>
-
-		<div id="PersonalityDescription" class="mainDiv">
-			<div class="mainDivTitle">Personality Description</div>
-			<div class="innerDiv">
-				<span class="topic">Extroversion:</span>
-				<span id="extroversion" class="dynamicData">{{ communicator.interlocutor_extroversion }}</span>
-			</div>
-			<div class="innerDiv">
-				<span class="topic">Agreeableness:</span>
-				<span id="agreeableness" class="dynamicData">{{ communicator.interlocutor_agreeableness }}</span>
-			</div>
-			<div class="innerDiv">
-				<span class="topic">Neuroticism:</span>
-				<span id="neuroticism" class="dynamicData">{{ communicator.interlocutor_neuroticism }}</span>
-			</div>
-			<div class="innerDiv">
-				<span class="topic">Openness:</span>
-				<span id="openness" class="dynamicData">{{ communicator.interlocutor_openness }}</span>
-			</div>
-			<div class="innerDiv">
-				<span class="topic">Conscientiousness:</span>
-				<span id="conscientiousness" class="dynamicData">{{ communicator.interlocutor_conscientiousness }}</span>
-			</div>
-			<div class="innerDiv">
-				<span class="topic">Personality Type Summary:</span>
-				<span id="summary" class="dynamicData">?????</span>
 			</div>
 		</div>
 
@@ -145,6 +114,158 @@
 				<span id="jobAddress" class="dynamicData">{{ communicator.interlocutor_workplace_address }}</span>
 			</div>
 		</div>
+        <div class="mainDiv" id="subjectOfConversation">
+			<div class="mainDivTitle">Subject of Conversation</div>
+			<div class="innerDiv">
+				<span class="topic">First name:</span>
+				<span id="subjectFirstName" class="dynamicData">
+                    {{ communicator.interlocutor_knowledge_of_subject_first_name }}
+                </span>
+			</div>
+            <div class="innerDiv">
+				<span class="topic">Last name:</span>
+				<span id="subjectLastName" class="dynamicData">
+                    {{ communicator.interlocutor_knowledge_of_subject_last_name }}
+                </span>
+			</div>
+			<div class="innerDiv">
+				<span class="topic">Status:</span>
+				<span id="subjectStatus" class="dynamicData">
+                    {{ communicator.interlocutor_knowledge_of_subject_status }}
+                </span>
+			</div>
+            <div class="innerDiv">
+				<span class="topic">Death year:</span>
+				<span id="subjectDeathYear" class="dynamicData">
+                    {{ communicator.interlocutor_knowledge_of_subject_death_year }}
+                </span>
+			</div>
+            <div class="innerDiv">
+				<span class="topic">Departure year:</span>
+				<span id="subjectDepartureYear" class="dynamicData">
+                    {{ communicator.interlocutor_knowledge_of_subject_departure_year }}
+                </span>
+			</div>
+            <div class="innerDiv">
+				<span class="topic">Relations to me:</span>
+				<span id="subjectRelationToMe" class="dynamicData">
+                    {{ communicator.interlocutor_knowledge_of_subject_relations_to_them }}
+                </span>
+			</div>
+            <div class="innerDiv">
+				<span class="topic">Charge:</span>
+				<span id="subjectCharge" class="dynamicData">
+                    {{ communicator.interlocutor_charge_of_subject }}
+                </span>
+			</div>
+            <div class="innerDiv">
+				<span class="topic">Spark:</span>
+				<span id="subjectSpark" class="dynamicData">
+                    {{ communicator.interlocutor_spark_of_subject }}
+                </span>
+			</div>
+            <div class="innerDiv">
+				<span class="topic">Age:</span>
+				<span id="subjectAge" class="dynamicData">
+                    {{ communicator.interlocutor_knowledge_of_subject_age }}
+                </span>
+			</div>
+            <div class="innerDiv">
+				<span class="topic">Job status:</span>
+				<span id="subjectJobStatus" class="dynamicData">
+                    {{ communicator.interlocutor_knowledge_of_subject_job_status }}
+                </span>
+			</div>
+            <div class="innerDiv">
+				<span class="topic">Job title:</span>
+				<span id="subjectJobTitle" class="dynamicData">
+                    {{ communicator.interlocutor_knowledge_of_subject_job_title }}
+                </span>
+			</div>
+            <div class="innerDiv">
+				<span class="topic">Job shift:</span>
+				<span id="subjectJobShift" class="dynamicData">
+                    {{ communicator.interlocutor_knowledge_of_subject_job_shift }}
+                </span>
+			</div>
+            <div class="innerDiv">
+				<span class="topic">Workplace:</span>
+				<span id="subjectWorkplace" class="dynamicData">
+                    {{ communicator.interlocutor_knowledge_of_subject_workplace }}
+                </span>
+			</div>
+            <div class="innerDiv">
+				<span class="topic">Skin color:</span>
+				<span id="subjectSkinColor" class="dynamicData">
+                    {{ communicator.interlocutor_knowledge_of_subject_skin_color }}
+                </span>
+			</div>
+            <div class="innerDiv">
+				<span class="topic">Hair color:</span>
+				<span id="subjectHairColor" class="dynamicData">
+                    {{ communicator.interlocutor_knowledge_of_subject_hair_color }}
+                </span>
+			</div>
+            <div class="innerDiv">
+				<span class="topic">Hair length:</span>
+				<span id="subjectHairLength" class="dynamicData">
+                    {{ communicator.interlocutor_knowledge_of_subject_hair_length }}
+                </span>
+			</div>
+            <div class="innerDiv">
+				<span class="topic">Tattoo:</span>
+				<span id="subjectTattoo" class="dynamicData">
+                    {{ communicator.interlocutor_knowledge_of_subject_tattoo }}
+                </span>
+			</div>
+            <div class="innerDiv">
+				<span class="topic">Scar:</span>
+				<span id="subjectScar" class="dynamicData">
+                    {{ communicator.interlocutor_knowledge_of_subject_scar }}
+                </span>
+			</div>
+            <div class="innerDiv">
+				<span class="topic">Birthmark:</span>
+				<span id="subjectBirthmark" class="dynamicData">
+                    {{ communicator.interlocutor_knowledge_of_subject_birthmark }}
+                </span>
+			</div>
+            <div class="innerDiv">
+				<span class="topic">Freckles:</span>
+				<span id="subjectFreckles" class="dynamicData">
+                    {{ communicator.interlocutor_knowledge_of_subject_freckles }}
+                </span>
+			</div>
+            <div class="innerDiv">
+				<span class="topic">Glasses:</span>
+				<span id="subjectGlasses" class="dynamicData">
+                    {{ communicator.interlocutor_knowledge_of_subject_glasses }}
+                </span>
+			</div>
+		</div>
+        <div id="whoAmIDiv" class="mainDiv">
+            <span class="topic">My Name is:</span>
+            <span class="dynamicData">{{ communicator.interlocutor_full_name }}</span>
+        </div>
+        <div id="timeAndPlaceInfo" class="mainDiv">
+            <div class="mainDivTitle">Time and Place Info</div>
+            <div id="townNameDiv">
+                <span class="topic">Town Name:</span>
+                <span class="dynamicData">{{ communicator.city_name }}</span>
+            </div>
+            <div id="currentDateDiv">
+                <span class="topic">Current Date:</span>
+                <span class="dynamicData">{{ communicator.current_date }}</span>
+            </div>
+            <div id="currentLocationDiv">
+                <span class="topic">My Location:</span>
+                <span class="dynamicData">{{ communicator.interlocutor_location_name }}</span>
+            </div>
+            <div id="currentAddressDiv">
+                <span class="topic">Address Here:</span>
+                <span class="dynamicData">{{ communicator.interlocutor_location_address }}</span>
+            </div>
+        </div>
 	</div>
 
 	<div id="extraInfoDiv">
@@ -166,33 +287,6 @@
 					</li>
 				</ul>
 			</span>
-		</div>
-		<div class="mainDiv" id="RelevantPerson">
-			<div class="mainDivTitle">Person Relevant To Conversation</div>
-			<div class="innerDiv">
-				<span class="topic">Name:</span>
-				<span id="relevantPersonOccupation" class="dynamicData">Spencer Woodwright</span>
-			</div>
-			<div class="innerDiv">
-				<span class="topic">Looks:</span>
-				<span id="relevantPersonLooks" class="dynamicData">40 yrs old, Blond Hair, Blue Eyes, Beige Skin</span>
-			</div>
-			<div class="innerDiv">
-				<span class="topic">Occupation:</span>
-				<span id="relevantPersonOccupation" class="dynamicData">Teacher at K-12 School, daytime</span>
-			</div>
-			<div class="innerDiv">
-				<span class="topic">Personality:</span>
-				<span id="relevantPersonOccupation" class="dynamicData">Sycophant</span>
-			</div>
-			<div class="innerDiv">
-				<span class="topic">Charge:</span>
-				<span id="relevantPersonCharge" class="dynamicData">Good Friends</span>
-			</div>
-			<div class="innerDiv">
-				<span class="topic">Spark:</span>
-				<span id="relevantPersonCharge" class="dynamicData">Very Attracted Towards</span>
-			</div>
 		</div>
 		<div class="mainDiv" id="TargetPerson">
 			<div class="mainDivTitle">Player's Target</div>
