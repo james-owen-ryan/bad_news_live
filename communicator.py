@@ -656,3 +656,98 @@ class Communicator(object):
             )
         else:
             return ''
+
+    @property
+    def interlocutor_knowledge_of_subject_spouse(self):
+        """Return the interlocutor's conception of the subject of conversation's spouse, if any."""
+        if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
+            if (self.player.subject_of_conversation.spouse and
+                    self.player.subject_of_conversation.spouse in self.interlocutor.mind.mental_models):
+                mental_model = self.interlocutor.mind.mental_models[self.player.subject_of_conversation.spouse]
+                facet = "{first_name} {last_name}".format(
+                    first_name=mental_model.name.first_name if mental_model.name.first_name else '?',
+                    last_name=mental_model.name.last_name if mental_model.name.last_name else '?'
+                )
+                return facet
+        else:
+            return ''
+
+    @property
+    def interlocutor_knowledge_of_subject_parents(self):
+        """Return the interlocutor's conception of the subject of conversation's parents, if any."""
+        if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
+            parents = [
+                p for p in self.player.subject_of_conversation.parents if
+                p in self.interlocutor.mind.mental_models
+            ]
+            if parents:
+                names_str = ', '.join(
+                    '{} {}'.format(
+                        self.interlocutor.mind.mental_models[p].name.first_name if
+                        self.interlocutor.mind.mental_models[p].name.first_name else '?',
+                        self.interlocutor.mind.mental_models[p].name.last_name if
+                        self.interlocutor.mind.mental_models[p].name.last_name else '?')
+                    for p in parents
+                )
+                return names_str
+        return ''
+
+    @property
+    def interlocutor_knowledge_of_subject_kids(self):
+        """Return the interlocutor's conception of the subject of conversation's kids, if any."""
+        if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
+            kids = [
+                k for k in self.player.subject_of_conversation.kids if
+                k in self.interlocutor.mind.mental_models
+            ]
+            if kids:
+                names_str = ', '.join(
+                    '{} {}'.format(
+                        self.interlocutor.mind.mental_models[k].name.first_name if
+                        self.interlocutor.mind.mental_models[k].name.first_name else '?',
+                        self.interlocutor.mind.mental_models[k].name.last_name if
+                        self.interlocutor.mind.mental_models[k].name.last_name else '?')
+                    for k in kids
+                )
+                return names_str
+        return ''
+
+    @property
+    def interlocutor_knowledge_of_subject_siblings(self):
+        """Return the interlocutor's conception of the subject of conversation's siblings, if any."""
+        if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
+            siblings = [
+                s for s in self.player.subject_of_conversation.kids if
+                s in self.interlocutor.mind.mental_models
+            ]
+            if siblings:
+                names_str = ', '.join(
+                    '{} {}'.format(
+                        self.interlocutor.mind.mental_models[s].name.first_name if
+                        self.interlocutor.mind.mental_models[s].name.first_name else '?',
+                        self.interlocutor.mind.mental_models[s].name.last_name if
+                        self.interlocutor.mind.mental_models[s].name.last_name else '?')
+                    for s in siblings
+                )
+                return names_str
+        return ''
+
+    @property
+    def interlocutor_knowledge_of_subject_cousins(self):
+        """Return the interlocutor's conception of the subject of conversation's cousins, if any."""
+        if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
+            cousins = [
+                c for c in self.player.subject_of_conversation.cousins if
+                c in self.interlocutor.mind.mental_models
+            ]
+            if cousins:
+                names_str = ', '.join(
+                    '{} {}'.format(
+                        self.interlocutor.mind.mental_models[c].name.first_name if
+                        self.interlocutor.mind.mental_models[c].name.first_name else '?',
+                        self.interlocutor.mind.mental_models[c].name.last_name if
+                        self.interlocutor.mind.mental_models[c].name.last_name else '?')
+                    for c in cousins
+                )
+                return names_str
+        return ''
