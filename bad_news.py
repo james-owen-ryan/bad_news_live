@@ -849,11 +849,12 @@ class Player(object):
             's': 'sex', 'hc': 'hair color', 'hl': 'hair length', 'f': 'freckles', 'b': 'birthmark',
             't': 'tattoo', 'g': 'glasses', 'fhs': 'sideburns', 'fhsb': 'sideburns', 'fhg': 'goatee',
             'fhfb': 'full beard', 'fhsp': 'soul patch', 'fhm': 'mustache', 'sc': 'broad skin color',
-            'ar': 'age range',
+            'ar': 'age range', 'gl': 'glasses',
         }
         feature_value_expansions = {
             'bla': 'black', 'br': 'brown', 'bro': 'brown', 'blo': 'blonde', 'ma': 'middle-aged', 'y': 'yes', 'n': 'no',
-            'm': 'male', 'f': 'female', 'l': 'long', 'md': 'medium', 's': 'short', 'b': 'bald'
+            'm': 'male', 'f': 'female', 'l': 'long', 'md': 'medium', 's': 'short', 'b': 'bald', 'e': 'elderly',
+            'o': 'older', 'i': 'infant', 't': 'toddler',
         }
         features_list = []
         for feature in features:
@@ -866,6 +867,10 @@ class Player(object):
             # Fix common mistakes
             if feature_name == 'hair length' and feature_value == 'male':
                 feature_value = 'medium'
+            elif feature_name == 'age range' and feature_value == 'male':
+                feature_value = 'middle-aged'
+            elif feature_name == 'age range' and feature_value == 'yes':
+                feature_value = 'young'
             # Throw an error for detected mistakes that can't be automatically fixed
             if feature_name == 'hair color' and feature_value in ('bald', 'bl'):
                 raise Exception("You used the wrong abbreviation for the 'hair color' feature!")
