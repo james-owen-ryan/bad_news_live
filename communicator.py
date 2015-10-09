@@ -748,7 +748,8 @@ class Communicator(object):
         if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
             extended_family = [
                 ef for ef in self.player.subject_of_conversation.extended_family if
-                ef in self.interlocutor.mind.mental_models
+                ef in self.interlocutor.mind.mental_models and
+                ef not in self.player.subject_of_conversation.immediate_family
             ]
             if extended_family:
                 names_str = ', '.join(
