@@ -1,0 +1,17 @@
+<html>
+  <head>
+    <!-- Load jQuery -->
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
+    <script>
+    // Set up script to auto-reload the interface every 300ms. This works
+    // by loading the content of a server file called 'actor.html', which the
+    // game overwrites as appropriate during gameplay
+    refresh_alerts = setInterval(function (){
+        $("#interface").load("actor.html");
+    }, 300)
+    </script>
+  </head>
+  <body>
+     <div id="interface"></div>
+  </body>
+</html>
