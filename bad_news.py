@@ -810,21 +810,15 @@ class Player(object):
             features = self.refrain
         else:
             self.refrain = features
+        features = self._parse_feature_strings(*features)
         # Check if we are narrowing, i.e., whether we are refining a ask_to_list of
         # matches to an earlier query
         narrowing = any(k for k in narrow if k == 'narrow' and narrow[k] is True)
-        # First, try to parse as if a name was passed -- this is hacky, but allows a
-        # nicely idiomatic default usage of do_you_know(name) while still allowing
-        # the more general usage that I specify in the docstring
-        if '=' not in features[0]:
-            first_name, last_name = features[0].split()
-            features = ('first name={}'.format(first_name), 'last name={}'.format(last_name))
         # Build a lambda function that we will use to build a list of
         # all the people in interlocutor's mind that match the given features
         matches_description = (
             lambda mental_model: all(
-                str(mental_model.get_facet_to_this_belief_of_type(feature.split('=')[0])).lower() ==
-                feature.split('=')[1].lower()
+                str(mental_model.get_facet_to_this_belief_of_type(feature[0])) == feature[1]
                 for feature in features if features
             )
         )
@@ -839,6 +833,44 @@ class Player(object):
             self.express_matches(underscore_warning=True)
         else:
             self.express_matches()
+
+    @staticmethod
+    def _parse_feature_strings(*features):
+        """Parse a set of feature strings to return a tuple of (feature_name, feature_value) tuples."""
+        # First, try to parse as if a name was passed -- this is hacky, but allows a
+        # nicely idiomatic default usage of do_you_know(name) while still allowing
+        # the more general usage that I specify in the docstring
+        if '=' not in features[0]:
+            first_name, last_name = features[0].split()
+            features_list = [('first name', first_name), ('last name', last_name)]
+            return features_list
+        # Otherwise, parse all the features specified in the feature strings
+        feature_name_expansions = {
+            's': 'sex', 'hc': 'hair color', 'hl': 'hair length', 'f': 'freckles', 'b': 'birthmark',
+            't': 'tattoo', 'g': 'glasses', 'fhs': 'sideburns', 'fhsb': 'sideburns', 'fhg': 'goatee',
+            'fhfb': 'full beard', 'fhsp': 'soul patch', 'fhm': 'mustache', 'sc': 'broad skin color',
+            'ar': 'age range',
+        }
+        feature_value_expansions = {
+            'bla': 'black', 'br': 'brown', 'bro': 'brown', 'blo': 'blonde', 'ma': 'middle-aged', 'y': 'yes', 'n': 'no',
+            'm': 'male', 'f': 'female', 'l': 'long', 'md': 'medium', 's': 'short', 'b': 'bald'
+        }
+        features_list = []
+        for feature in features:
+            feature_name, feature_value = feature.lower().split('=')
+            # Expand abbreviated tags
+            if feature_name in feature_name_expansions:
+                feature_name = feature_name_expansions[feature_name]
+            if feature_value in feature_value_expansions:
+                feature_value = feature_value_expansions[feature_value]
+            # Fix common mistakes
+            if feature_name == 'hair length' and feature_value == 'male':
+                feature_value = 'medium'
+            # Throw an error for detected mistakes that can't be automatically fixed
+            if feature_name == 'hair color' and feature_value in ('bald', 'bl'):
+                raise Exception("You used the wrong abbreviation for the 'hair color' feature!")
+            features_list.append((feature_name, feature_value))
+        return features_list
 
     def express_matches(self, underscore_warning=False):
         """Express the number matches interlocutor found from the mind query."""
@@ -857,8 +889,8 @@ class Player(object):
             else:
                 and_they_are_right_here = ''
             print "\nFound a match{and_they_are_right_here}:".format(and_they_are_right_here=and_they_are_right_here)
-            self.interlocutor.matches[0].temp_address_number = 99
-            self.talk_about(address_number=99)
+            self.interlocutor.matches[0].temp_address_number = 999
+            self.talk_about(address_number=999)
         else:
             print "\nFound {} matches.\n".format(len(self.interlocutor.matches))
             if underscore_warning:
