@@ -2,6 +2,29 @@
   <head>
     <!-- Load jQuery -->
     <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
+    <!-- Timer-countdown code (taken from StackOverflow) -->
+    <script>
+    function startTimer(duration, display) {
+        var timer = duration, minutes, seconds;
+        setInterval(function () {
+            minutes = parseInt(timer / 60, 10);
+            seconds = parseInt(timer % 60, 10);
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+            display.text(minutes + ":" + seconds);
+            if (--timer < 0) {
+                timer = duration;
+            }
+        }, 1000);
+    }
+
+    jQuery(function ($) {
+        var fifteenMinutes = 60 * 15,
+            display = $('#countdown');
+        startTimer(fifteenMinutes, display);
+    });
+    </script>
+    <!-- Autoreloader code -->
     <script>
     // Set up script to auto-reload the interface every 300ms. This works
     // by loading the content of a server file called 'actor.html', which the
@@ -12,6 +35,9 @@
     </script>
   </head>
   <body>
+     <center>
+     <div class=timer id="countdown"></div>
+     </center>
      <div id="interface"></div>
   </body>
 </html>
