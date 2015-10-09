@@ -142,9 +142,8 @@ class Player(object):
         self.last_address_i_heard = None
         self.last_unit_number_i_heard = None
         self.last_block_i_heard = None
-        # self.interlocutor = None
-        self.interlocutor = self.game.sim.random_person
-        self.subject_of_conversation = None  # Name of whom player and interlocutor are currently talking about
+        self.interlocutor = None
+        self.subject_of_conversation = None  # Character whom player and interlocutor are currently talking about
         self.current_list_index = 0  # Facilitates ask_to_list methods
         self.refrain = ()  # Features they keep asking about
 
