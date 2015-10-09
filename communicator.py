@@ -724,7 +724,7 @@ class Communicator(object):
         """Return the interlocutor's conception of the subject of conversation's siblings, if any."""
         if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
             siblings = [
-                s for s in self.player.subject_of_conversation.kids if
+                s for s in self.player.subject_of_conversation.siblings if
                 s in self.interlocutor.mind.mental_models
             ]
             if siblings:
