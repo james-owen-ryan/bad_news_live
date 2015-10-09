@@ -1103,7 +1103,7 @@ class Player(object):
                         else:
                             return None
 
-    def wait_until(self):
+    def wait(self):
         """Wait here until the next timestep."""
         self.game.advance_timestep()
         self.observe()
