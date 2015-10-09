@@ -1198,12 +1198,18 @@ class Player(object):
 
     def notify(self):
         """Notify interlocutor that the deceased person has died."""
-        if (self.interlocutor is self.game.next_of_kin or
-                self.game.deceased_character.relation_to_me(self.interlocutor) ==
-                self.game.deceased_character.relation_to_me(self.game.next_of_kin)):
-            print "You have successfully notified the next of kin. You win!"
+        # Determine whether the notified person was a next of kin
+        if self.interlocutor in self.game.next_of_kin:
+            verdict = "You have successfully notified the next of kin. You win!"
         else:
-            print "You have notified the wrong person. You lose."
+            verdict = "You have notified the wrong person. You lose."
+        # Express this outcome to the player
+        if self.game.offline_mode:
+            print verdict
+        else:
+            self.game.communicator.player_exposition = verdict
+            self.game.communicator.player_exposition_enumeration = ''
+            self.game.communicator.update_player_interface()
 
     @property
     def i(self):
