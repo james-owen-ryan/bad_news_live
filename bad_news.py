@@ -956,12 +956,14 @@ class Player(object):
     def who_lives_in(self, house_or_unit_number=None):
         """Ask interlocutor if they know who lives in a neighboring home with the given house_or_unit_number."""
         # Pre-narrow the interlocutor's matches to all the people that live nearby them
+        # currently (i.e., exclude former neighbors who died)
         self.interlocutor.earlier_matches = list(self.interlocutor.matches)
         self.interlocutor.matches = [
             p for p in self.interlocutor.mind.mental_models if p.type == 'person' and
+            p.alive and
             p in self.interlocutor.neighbors
         ]
-        if house_or_unit_number:  # Having default be None facilitates wrapper calls from who_lives_nearby()
+        if house_or_unit_number:  # Having default be None facilitates wrapper calls from who_lives_by_you()
             if house_or_unit_number > 99:  # Must be house number
                 self.interlocutor.matches = [
                     p for p in self.interlocutor.matches if p.home.house and
