@@ -37,16 +37,16 @@ class Game(object):
         self.city = self.sim.city
         self.offline_mode = offline_mode  # Whether James is playtesting, in which case don't show hidden knowledge
         self.player = Player(game=self)
-        self.deceased_character = self.select_deceased_character()
+        self.deceased_character = self._select_deceased_character()
         self.player.location = self.deceased_character.location
         self.deceased_character.die('Unknown causes')
-        self.nok = self.next_of_kin = self.deceased_character.next_of_kin
+        self.nok = self.next_of_kin = self._determine_all_valid_next_of_kin()
         # A communicator facilitates communication between the simulation and various game interfaces
         if not offline_mode:
             self.communicator = Communicator(game=self)
         else:
             self.communicator = None
-        self.render_opening_exposition()
+        self._render_opening_exposition()
         self._init_set_up_helper_attributes()
 
     def _init_set_up_helper_attributes(self):
@@ -57,7 +57,7 @@ class Game(object):
             person.earlier_matches = []  # Allows going back to the last good set of matches after narrowing too far
             person.hinges = []  # Allows use of address numbers with hinges
 
-    def select_deceased_character(self):
+    def _select_deceased_character(self):
         """Prepare the soon-to-be deceased character whose next-of-kin the
         player will be tasked with notifying.
 
@@ -73,7 +73,27 @@ class Game(object):
         ]
         return random.choice(potential_selections)
 
-    def render_opening_exposition(self):
+    def _determine_all_valid_next_of_kin(self):
+        """Determine all the characters in town who could be successfully notified as the next of kin."""
+        # Spouse
+        if self.deceased_character.spouse and self.deceased_character.spouse.present:
+            return [self.deceased_character.spouse]
+        # Parents
+        if self.deceased_character.parents and any(p for p in self.deceased_character.parents if p.present):
+            return [p for p in self.deceased_character.parents if p.present]
+        # Children
+        if self.deceased_character.kids and any(k for k in self.deceased_character.kids if k.present):
+            return [k for k in self.deceased_character.kids if k.present]
+        # Siblings
+        if self.deceased_character.siblings and any(s for s in self.deceased_character.siblings if s.present):
+            return [s for s in self.deceased_character.siblings if s.present]
+        # Extended family (greatgrandparents, grandparents, aunts, uncles, cousins, nieces, nephews)
+        if self.deceased_character.extended_family and any(
+                ef for ef in self.deceased_character.extended_family if ef.present
+        ):
+            return [ef for ef in self.deceased_character.extended_family if ef.present]
+
+    def _render_opening_exposition(self):
         """Render the initial exposition that opens the game."""
         opening_exposition = (
             "It is {nighttime_or_daytime}, {date}. You are alone in {a_house_or_apartment} at {address} "
