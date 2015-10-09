@@ -2,6 +2,40 @@
   <head>
     <!-- Load jQuery -->
     <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
+    <!-- Load Google font -->
+    <link href='//fonts.googleapis.com/css?family=Quicksand:300,400,700' rel='stylesheet' type='text/css'>
+    <!-- Timer style -->
+    <style>
+    .timer {
+      text-align: center;
+      font-family: 'Quicksand', sans-serif;
+      font-weight: 400;
+      font-size: 28px;
+    }
+    </style>
+    <!-- Timer-countdown code (taken from StackOverflow) -->
+    <script>
+    function startTimer(duration, display) {
+        var timer = duration, minutes, seconds;
+        setInterval(function () {
+            minutes = parseInt(timer / 60, 10);
+            seconds = parseInt(timer % 60, 10);
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+            display.text(minutes + ":" + seconds);
+            if (--timer < 0) {
+                timer = duration;
+            }
+        }, 1000);
+    }
+
+    jQuery(function ($) {
+        var fifteenMinutes = 60 * 15,
+            display = $('#countdown');
+        startTimer(fifteenMinutes, display);
+    });
+    </script>
+    <!-- Autoreloader code -->
     <script>
     // Set up script to auto-reload the interface every 300ms. This works
     // by loading the content of a server file called 'player.html', which the
@@ -12,6 +46,7 @@
     </script>
   </head>
   <body>
+     <div class=timer id="countdown"></div>
      <div id="interface"></div>
   </body>
 </html>
