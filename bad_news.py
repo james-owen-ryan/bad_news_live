@@ -158,6 +158,10 @@ class Player(object):
 
         If no location exists at this address, move them simply to the associated block.
         """
+        # Since this method is called when a player's location changes, it also
+        # makes sense to end the character's current conversation, if any, because
+        # usually this will co-occur with a command to move locations
+        self.end_conversation()
         if not address:
             address = self.last_address_i_heard
         try:
@@ -209,6 +213,10 @@ class Player(object):
 
     def goto_block(self, block=None, exposition_prefix=None):
         """Move the character to the given block."""
+        # Since this method is called when a player's location changes, it also
+        # makes sense to end the character's current conversation, if any, because
+        # usually this will co-occur with a command to move locations
+        self.end_conversation()
         if not block:
             block = self.last_block_i_heard
         if type(block) == str:
@@ -259,10 +267,18 @@ class Player(object):
 
     def goback(self):
         """Go back to the last place you were at."""
+        # Since this method is called when a player's location changes, it also
+        # makes sense to end the character's current conversation, if any, because
+        # usually this will co-occur with a command to move locations
+        self.end_conversation()
         self.goto(self.places_i_have_been[-2].address)
 
     def move(self, direction):
         """Move to an adjacent block."""
+        # Since this method is called when a player's location changes, it also
+        # makes sense to end the character's current conversation, if any, because
+        # usually this will co-occur with a command to move locations
+        self.end_conversation()
         if self.location.type != 'block':
             self.location = self.location.block
         try:
@@ -370,11 +386,19 @@ class Player(object):
 
     def exit(self):
         """Exit a building."""
+        # Since this method is called when a player's location changes, it also
+        # makes sense to end the character's current conversation, if any, because
+        # usually this will co-occur with a command to move locations
+        self.end_conversation()
         self.outside = True
         self.observe()
 
     def go_outside(self):
         """Go into the street and the observe the block you are on."""
+        # Since this method is called when a player's location changes, it also
+        # makes sense to end the character's current conversation, if any, because
+        # usually this will co-occur with a command to move locations
+        self.end_conversation()
         self.outside = True
         self.location = self.location.block
         self.observe()
@@ -817,6 +841,12 @@ class Player(object):
         else:
             self.game.communicator.player_exposition = exposition
             self.game.communicator.update_player_interface()
+
+    def end_conversation(self):
+        """Set the interlocutor back to None and update the actor interface accordingly."""
+        if self.interlocutor:
+            self.interlocutor = None
+            self.game.communicator.update_actor_interface()
 
     def do_you_know(self, *features, **narrow):
         """Return a ask_to_list of all the mental models interlocutor has that match the given features.
