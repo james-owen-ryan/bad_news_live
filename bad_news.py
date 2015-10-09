@@ -1194,6 +1194,10 @@ class Player(object):
         """Wrapper around ask_to_list()."""
         self.ask_to_list()
 
+    def l(self):
+        """Wrapper around ask_to_list()."""
+        self.ask_to_list()
+
     def hdyk(self):
         """Wrapper around how_do_you_know()."""
         self.how_do_you_know()
