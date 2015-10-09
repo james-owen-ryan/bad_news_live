@@ -664,9 +664,10 @@ class Communicator(object):
             if (self.player.subject_of_conversation.spouse and
                     self.player.subject_of_conversation.spouse in self.interlocutor.mind.mental_models):
                 mental_model = self.interlocutor.mind.mental_models[self.player.subject_of_conversation.spouse]
-                facet = "{first_name} {last_name}".format(
+                facet = "{first_name} {last_name} ({status})".format(
                     first_name=mental_model.name.first_name if mental_model.name.first_name else '?',
-                    last_name=mental_model.name.last_name if mental_model.name.last_name else '?'
+                    last_name=mental_model.name.last_name if mental_model.name.last_name else '?',
+                    status=mental_model.status.status if mental_model.status.status else '?'
                 )
                 return facet
         else:
@@ -686,7 +687,10 @@ class Communicator(object):
                         self.interlocutor.mind.mental_models[p].name.first_name if
                         self.interlocutor.mind.mental_models[p].name.first_name else '?',
                         self.interlocutor.mind.mental_models[p].name.last_name if
-                        self.interlocutor.mind.mental_models[p].name.last_name else '?')
+                        self.interlocutor.mind.mental_models[p].name.last_name else '?',
+                        self.interlocutor.mind.mental_models[p].status.status if
+                        self.interlocutor.mind.mental_models[p].status.status else '?'
+                    )
                     for p in parents
                 )
                 return names_str
@@ -702,11 +706,14 @@ class Communicator(object):
             ]
             if kids:
                 names_str = ', '.join(
-                    '{} {}'.format(
+                    '{} {} ({})'.format(
                         self.interlocutor.mind.mental_models[k].name.first_name if
                         self.interlocutor.mind.mental_models[k].name.first_name else '?',
                         self.interlocutor.mind.mental_models[k].name.last_name if
-                        self.interlocutor.mind.mental_models[k].name.last_name else '?')
+                        self.interlocutor.mind.mental_models[k].name.last_name else '?',
+                        self.interlocutor.mind.mental_models[k].status.status if
+                        self.interlocutor.mind.mental_models[k].status.status else '?'
+                    )
                     for k in kids
                 )
                 return names_str
@@ -726,28 +733,35 @@ class Communicator(object):
                         self.interlocutor.mind.mental_models[s].name.first_name if
                         self.interlocutor.mind.mental_models[s].name.first_name else '?',
                         self.interlocutor.mind.mental_models[s].name.last_name if
-                        self.interlocutor.mind.mental_models[s].name.last_name else '?')
+                        self.interlocutor.mind.mental_models[s].name.last_name else '?',
+                        self.interlocutor.mind.mental_models[s].status.status if
+                        self.interlocutor.mind.mental_models[s].status.status else '?'
+                    )
                     for s in siblings
                 )
                 return names_str
         return ''
 
     @property
-    def interlocutor_knowledge_of_subject_cousins(self):
-        """Return the interlocutor's conception of the subject of conversation's cousins, if any."""
+    def interlocutor_knowledge_of_subject_extended_family(self):
+        """Return the interlocutor's conception of the subject of conversation's extended family, if any."""
         if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
-            cousins = [
-                c for c in self.player.subject_of_conversation.cousins if
-                c in self.interlocutor.mind.mental_models
+            extended_family = [
+                ef for ef in self.player.subject_of_conversation.extended_family if
+                ef in self.interlocutor.mind.mental_models
             ]
-            if cousins:
+            if extended_family:
                 names_str = ', '.join(
-                    '{} {}'.format(
-                        self.interlocutor.mind.mental_models[c].name.first_name if
-                        self.interlocutor.mind.mental_models[c].name.first_name else '?',
-                        self.interlocutor.mind.mental_models[c].name.last_name if
-                        self.interlocutor.mind.mental_models[c].name.last_name else '?')
-                    for c in cousins
+                    '{} {} ({}; {})'.format(
+                        self.interlocutor.mind.mental_models[ef].name.first_name if
+                        self.interlocutor.mind.mental_models[ef].name.first_name else '?',
+                        self.interlocutor.mind.mental_models[ef].name.last_name if
+                        self.interlocutor.mind.mental_models[ef].name.last_name else '?',
+                        self.player.subject_of_conversation.relation_to_me(ef),
+                        self.interlocutor.mind.mental_models[ef].status.status if
+                        self.interlocutor.mind.mental_models[ef].status.status else '?'
+                    )
+                    for ef in extended_family
                 )
                 return names_str
         return ''

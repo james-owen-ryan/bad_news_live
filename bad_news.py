@@ -81,7 +81,7 @@ class Game(object):
         # Parents
         if self.deceased_character.parents and any(p for p in self.deceased_character.parents if p.present):
             return [p for p in self.deceased_character.parents if p.present]
-        # Children
+        # Kids
         if self.deceased_character.kids and any(k for k in self.deceased_character.kids if k.present):
             return [k for k in self.deceased_character.kids if k.present]
         # Siblings
