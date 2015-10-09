@@ -869,7 +869,7 @@ class Player(object):
             's': 'sex', 'hc': 'hair color', 'hl': 'hair length', 'f': 'freckles', 'b': 'birthmark',
             't': 'tattoo', 'g': 'glasses', 'fhs': 'sideburns', 'fhsb': 'sideburns', 'fhg': 'goatee',
             'fhfb': 'full beard', 'fhsp': 'soul patch', 'fhm': 'mustache', 'sc': 'broad skin color',
-            'ar': 'age range', 'gl': 'glasses',
+            'ar': 'age range', 'gl': 'glasses', 'fn': 'first name', 'ln': 'last name', 'mn': 'middle name'
         }
         feature_value_expansions = {
             'bla': 'black', 'br': 'brown', 'bro': 'brown', 'blo': 'blonde', 'ma': 'middle-aged', 'y': 'yes', 'n': 'no',
