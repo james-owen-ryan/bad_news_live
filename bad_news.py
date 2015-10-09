@@ -819,7 +819,7 @@ class Player(object):
         if '=' not in features[0]:
             first_name, last_name = features[0].split()
             features = ('first name={}'.format(first_name), 'last name={}'.format(last_name))
-        # Build a lambda function that we will use to build a ask_to_list of
+        # Build a lambda function that we will use to build a list of
         # all the people in interlocutor's mind that match the given features
         matches_description = (
             lambda mental_model: all(
