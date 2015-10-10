@@ -1083,6 +1083,14 @@ class Player(object):
                 ]
         self.express_matches()
 
+    def who_lives_here(self):
+        """Wrapper around who_lives_in() that queries about the player's current location."""
+        if self.location.apartment:
+            current_house_or_unit_number = self.location.unit_number
+        else:
+            current_house_or_unit_number = self.location.house_number
+        self.who_lives_in(house_or_unit_number=current_house_or_unit_number)
+
     def who_lives_by_you(self):
         """Ask interlocutor if they know their neighbors."""
         self.who_lives_in(house_or_unit_number=None)
