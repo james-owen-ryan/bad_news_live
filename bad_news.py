@@ -1019,10 +1019,15 @@ class Player(object):
         # is probably more intuitive to call in the heat of the moment
         if type(subject_reference) == str:
             self.do_you_know(subject_reference)
-        else:  # A temp address number was passed, i.e., the conventional usage of this method
-            self.subject_of_conversation = next(
-                p for p in self.interlocutor.matches if p.temp_address_number == subject_reference
-            )
+        else:
+            # If a person object was passed, just make them the subject of conversation
+            if type(subject_reference).__name__ in ('Person', 'PersonExNihilo'):
+                self.subject_of_conversation = subject_reference
+            else:
+                # A temp address number was passed, i.e., the conventional usage of this method
+                self.subject_of_conversation = next(
+                    p for p in self.interlocutor.matches if p.temp_address_number == subject_reference
+                )
             if not self.game.offline_mode:
                 self.game.communicator.update_actor_interface()
                 # self.interlocutor.mind.mental_models[self.subject_of_conversation].outline()
@@ -1312,3 +1317,4 @@ upi = bn.communicator.update_player_interface
 test = bn.communicator.test
 begin = bn.begin
 l = pc.ask_to_list
+ta = pc.talk_about
