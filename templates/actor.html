@@ -274,6 +274,15 @@
                 </span>
 			</div>
 		</div>
+        <div class="mainDiv" id="QueryMatches">
+			<div class="mainDivTitle">Matches</div>
+			<div class="innerDiv">
+				<span id="nMatchesFound" class="dynamicData">{{ communicator.matches_overview }}</span>
+			</div>
+			<div class="innerDiv">
+				<span id="matchesListing" class="dynamicData">{{ communicator.matches_listing }}</span>
+			</div>
+		</div>
         <div id="whoAmIDiv" class="mainDiv">
             <span class="topic">My Name is:</span>
             <span class="dynamicData">{{ communicator.interlocutor_full_name }}</span>

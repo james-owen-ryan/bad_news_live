@@ -870,7 +870,7 @@ class Player(object):
             self.interlocutor = None
             self.game.communicator.update_actor_interface()
 
-    def do_you_know(self, features_str, narrow=False):
+    def do_you_know(self, features_str=None, narrow=False):
         """Return a ask_to_list of all the mental models interlocutor has that match the given features.
 
         Features should be a ask_to_list of tuples, where the first element of each tuple is a feature
@@ -897,10 +897,7 @@ class Player(object):
             p.type == "person" and
             matches_description(self.interlocutor.mind.mental_models[p])
         ]
-        if any(f for f in features if '_' in f):
-            self.express_matches(underscore_warning=True)
-        else:
-            self.express_matches()
+        self.express_matches()
 
     @staticmethod
     def _parse_feature_strings(features_str):
@@ -914,6 +911,7 @@ class Player(object):
             return features_list
         else:
             features_str = features_str.replace(' ', '')  # Remove whitespace
+            features_str = features_str.replace('_', ' ')  # Automatically fix underscore mistakes
             features = features_str.split(',')  # Split on commas
             # Otherwise, parse all the features specified in the feature strings
             feature_name_expansions = {
@@ -950,10 +948,10 @@ class Player(object):
                 features_list.append((feature_name, feature_value))
             return features_list
 
-    def express_matches(self, underscore_warning=False):
+    def express_matches(self):
         """Express the number matches interlocutor found from the mind query."""
-        # If a single match was found, make them the new subject of conversation;
-        # further, if that person is at this very location right now, make that known
+        # If a single match was found, automatically make them the new subject of conversation;
+        # further, if that person is at this very location right now, make that known to the actor
         if len(self.interlocutor.matches) == 1:
             if self.interlocutor.matches[0].location is self.location:
                 if self.interlocutor.matches[0] is self.interlocutor:
@@ -966,13 +964,17 @@ class Player(object):
                     )
             else:
                 and_they_are_right_here = ''
-            print "\nFound a match{and_they_are_right_here}:".format(and_they_are_right_here=and_they_are_right_here)
+            matches_str = "Found a match{and_they_are_right_here}.".format(
+                and_they_are_right_here=and_they_are_right_here
+            )
+            print '\n{matches_str}\n'.format(matches_str=matches_str)
+            self.game.communicator.matches_overview = matches_str
             self.interlocutor.matches[0].temp_address_number = 999
             self.talk_about(subject_reference=999)
         else:
-            print "\nFound {} matches.\n".format(len(self.interlocutor.matches))
-            if underscore_warning:
-                print '\nWarning: You put an underscore in one of the features.\n'
+            matches_str = "Found {} matches.".format(len(self.interlocutor.matches))
+            print '\n{matches_str}\n'.format(matches_str=matches_str)
+            self.game.communicator.matches_overview = matches_str
 
     def narrow(self, features_str):
         """Narrow the matches interlocutor has found by specifying additional features."""
@@ -987,6 +989,7 @@ class Player(object):
         """Ask interlocutor to ask_to_list their potential matches to the player's question."""
         if not n_to_list:
             n_to_list = len(self.interlocutor.matches)
+        self.game.communicator.matches_listing = ''
         print '\n'
         for i in xrange(start_index, start_index+n_to_list):
             match = self.interlocutor.matches[i]
@@ -996,6 +999,10 @@ class Player(object):
                 basic_description=self.interlocutor.mind.mental_models[match].basic_description
             )
             self.current_list_index = i
+            self.game.communicator.matches_listing += '{line_break}{basic_description}'.format(
+                line_break='<br>' if i > 0 else '',
+                basic_description=self.interlocutor.mind.mental_models[match].basic_description
+            )
         print '\n'
 
     def list_a_few(self):
@@ -1291,6 +1298,8 @@ class Player(object):
         self.approach(house_number=house_number)
 
 
+# Define various global variables that serve as quick convenience wrappers
+# for the wizard to utilize during gameplay
 offline_mode = False
 bn = Game(offline_mode=offline_mode)
 g = bn.sim
@@ -1298,6 +1307,8 @@ pc = bn.player
 d = bn.deceased_character
 nok = bn.next_of_kin
 uai = bn.communicator.update_actor_interface
+push = bn.communicator.update_actor_interface
 upi = bn.communicator.update_player_interface
 test = bn.communicator.test
 begin = bn.begin
+l = pc.ask_to_list

@@ -23,6 +23,9 @@ class Communicator(object):
         # periodically by the gameplay instance
         self.player_exposition = ''
         self.player_exposition_enumeration = ''  # Enumeration of buildings, characters nearby, etc.
+        # Special text that may be displayed on the actor interface during gameplay
+        self.matches_overview = ''  # Matches to a given query, e.g., 'Found 9 matches'
+        self.matches_listing = ''  # Listing of individual matches
         # Load templates
         template_loader = jinja2.FileSystemLoader(searchpath="./templates")
         template_env = jinja2.Environment(loader=template_loader)
