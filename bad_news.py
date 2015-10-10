@@ -38,7 +38,6 @@ class Game(object):
         self.offline_mode = offline_mode  # Whether James is playtesting, in which case don't show hidden knowledge
         self.player = Player(game=self)
         self.deceased_character = self._select_deceased_character()
-        self._simulate_the_death()
         self.nok = self.next_of_kin = self._determine_all_valid_next_of_kin()
         self.player.location = self.deceased_character.location
         # A communicator facilitates communication between the simulation and various game interfaces
@@ -47,6 +46,7 @@ class Game(object):
         else:
             self.communicator = None
         self._compose_opening_exposition()
+        self._simulate_the_death()  # Called after the opening exposition is composed because of ' (deceased)' modifier
         self._init_set_up_helper_attributes()
 
     def _init_set_up_helper_attributes(self):
@@ -80,7 +80,7 @@ class Game(object):
         # if we kill the character, a bunch of issues arise
         self.city.residents.remove(self.deceased_character)
         # self.deceased_character.location.people_here_now.remove(self.deceased_character)
-        self.deceased_character.description += ' (deceased)'
+        self.deceased_character.alive = False  # Crucially we do not call .die() method here
 
     def _determine_all_valid_next_of_kin(self):
         """Determine all the characters in town who could be successfully notified as the next of kin."""
