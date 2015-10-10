@@ -12,8 +12,14 @@
             minutes = minutes < 10 ? "0" + minutes : minutes;
             seconds = seconds < 10 ? "0" + seconds : seconds;
             display.text(minutes + ":" + seconds);
-            if (--timer < 0) {
-                timer = duration;
+            if (--timer < 30) {
+              var timerDiv = document.querySelector("#countdown");
+              if (timerDiv.style.color != "black") {
+                timerDiv.style.color = "black";
+              }
+              else {
+                timerDiv.style.color = "white";
+              }
             }
         }, 1000);
     }
