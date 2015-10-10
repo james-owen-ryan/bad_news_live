@@ -1260,5 +1260,5 @@ g = bn.sim
 pc = bn.player
 d = bn.deceased_character
 nok = bn.next_of_kin
-aui = bn.communicator.update_actor_interface()
+uai = bn.communicator.update_actor_interface()
 upi = bn.communicator.update_player_interface()
