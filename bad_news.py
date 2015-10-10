@@ -1145,7 +1145,7 @@ class Player(object):
         if self.game.offline_mode:
             print '\n{exposition}\n'.format(exposition=exposition)
         else:
-            self.game.communicator.player_exposition = exposition
+            self.game.communicator.player_exposition = exposition + ' The intercom system remains before you:'
             self.game.communicator.update_player_interface()
 
     def _buzz_apartment_complex_office(self):
