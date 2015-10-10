@@ -69,7 +69,7 @@ class Game(object):
             len(p.location.people_here_now) == 1 and
             p.occupations and
             p.friends and
-            p.extended_family
+            p.greatgrandparents | p.grandparents | p.aunts | p.uncles | p.nieces | p.nephews | p.cousins
         ]
         return random.choice(potential_selections)
 

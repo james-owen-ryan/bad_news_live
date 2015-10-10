@@ -764,12 +764,18 @@ class Communicator(object):
     def interlocutor_knowledge_of_subject_extended_family(self):
         """Return the interlocutor's conception of the subject of conversation's extended family, if any."""
         if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
-            extended_family = [
-                ef for ef in self.player.subject_of_conversation.extended_family if
+            subject = self.player.subject_of_conversation
+            subject_extended_family = (
+                # Build this set manually to preclude in-laws being included
+                subject.greatgrandparents | subject.grandparents | subject.aunts | subject.uncles |
+                subject.nieces | subject.nephews | subject.cousins
+            )
+            known_extended_family = [
+                ef for ef in subject_extended_family if
                 ef in self.interlocutor.mind.mental_models and
                 ef not in self.player.subject_of_conversation.immediate_family
             ]
-            if extended_family:
+            if known_extended_family:
                 names_str = ', '.join(
                     '{} {} ({}; {})'.format(
                         self.interlocutor.mind.mental_models[ef].name.first_name if
@@ -780,7 +786,7 @@ class Communicator(object):
                         self.interlocutor.mind.mental_models[ef].status.status if
                         self.interlocutor.mind.mental_models[ef].status.status else '?'
                     )
-                    for ef in extended_family
+                    for ef in known_extended_family
                 )
                 return names_str
         return ''
