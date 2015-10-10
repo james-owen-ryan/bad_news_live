@@ -914,7 +914,7 @@ class Player(object):
         feature_value_expansions = {
             'bla': 'black', 'br': 'brown', 'bro': 'brown', 'blo': 'blonde', 'ma': 'middle-aged', 'y': 'yes', 'n': 'no',
             'm': 'male', 'f': 'female', 'l': 'long', 'md': 'medium', 's': 'short', 'b': 'bald', 'e': 'elderly',
-            'o': 'older', 'i': 'infant', 't': 'toddler', 'g': 'gray', 'w': 'white', 'r': 'red'
+            'o': 'older', 'i': 'infant', 't': 'toddler', 'g': 'gray', 'w': 'white', 'r': 'red', 'ya': 'young adult'
         }
         features_list = []
         for feature in features:
