@@ -155,6 +155,7 @@ class Player(object):
         self.last_unit_number_i_heard = None
         self.last_block_i_heard = None
         self.interlocutor = None
+        self.all_interlocutors = []  # Ordered list of all the NPCs player has talked to
         self.subject_of_conversation = None  # Character whom player and interlocutor are currently talking about
         self.current_list_index = 0  # Facilitates ask_to_list methods
         self.refrain = self._determine_initial_refrain()  # Features they keep asking about
@@ -934,6 +935,7 @@ class Player(object):
         if self.location.people_here_now:
             if len(self.location.people_here_now) == 1:
                 self.interlocutor = list(self.location.people_here_now)[0]
+                self.all_interlocutors.append(self.interlocutor)
                 self.game.communicator.update_actor_interface()
                 exposition = "You are approaching {age_and_gender_nominal} with {appearance} [{i}]. {nearby}".format(
                     age_and_gender_nominal=self.interlocutor.age_and_gender_description,
@@ -944,6 +946,7 @@ class Player(object):
             else:
                 if any(p for p in self.location.people_here_now if p.name == name):
                     self.interlocutor = next(p for p in self.location.people_here_now if p.name == name)
+                    self.all_interlocutors.append(self.interlocutor)
                     self.game.communicator.update_actor_interface()
                     exposition = "You are approaching {age_and_gender_nominal} with {appearance} [{i}]. {nearby}".format(
                         age_and_gender_nominal=self.interlocutor.age_and_gender_description,
@@ -955,6 +958,7 @@ class Player(object):
                     self.interlocutor = next(
                         p for p in self.location.people_here_now if p.temp_address_number == address_number
                     )
+                    self.all_interlocutors.append(self.interlocutor)
                     self.game.communicator.update_actor_interface()
                     exposition = "You are approaching {age_and_gender_nominal} with {appearance} [{i}]. {nearby}".format(
                         age_and_gender_nominal=self.interlocutor.age_and_gender_description,
@@ -1243,6 +1247,7 @@ class Player(object):
         answerer = self._determine_who_answers_buzzer_or_doorbell(dwelling_place=self.location)
         if answerer:
             self.interlocutor = answerer
+            self.all_interlocutors.append(self.interlocutor)
             self.game.communicator.update_actor_interface()
         verb_phrase = 'comes to the gate' if self.location.lot.tract else 'answers the door'
         if answerer in self.people_i_know_by_name:
@@ -1282,6 +1287,7 @@ class Player(object):
             )
         if answerer:
             self.interlocutor = answerer
+            self.all_interlocutors.append(self.interlocutor)
             self.game.communicator.update_actor_interface()
             exposition = '{} speaks into the intercom.'.format(
                 answerer.age_and_gender_description.capitalize()
