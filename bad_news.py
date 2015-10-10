@@ -157,7 +157,36 @@ class Player(object):
         self.interlocutor = None
         self.subject_of_conversation = None  # Character whom player and interlocutor are currently talking about
         self.current_list_index = 0  # Facilitates ask_to_list methods
-        self.refrain = ()  # Features they keep asking about
+        self.refrain = self._determine_initial_refrain()  # Features they keep asking about
+
+    def _determine_initial_refrain(self):
+        """Set the player's initial refrain to match the description of the deceased person."""
+        deceased_character = self.game.deceased_character
+        features_str = ''
+        # Set age range
+        if deceased_character.age < 1:
+            features_str += 'ar=infant'
+        elif deceased_character.age < 4:
+            features_str += 'ar=toddler'
+        elif deceased_character.age < 10:
+            features_str += 'ar=young'
+        elif deceased_character.age < 13:
+            features_str += 'ar=preteen'
+        elif deceased_character.age < 20:
+            features_str += 'ar=teenage'
+        elif deceased_character.age < 25:
+            features_str += 'ar=young adult'
+        elif deceased_character.age < 45:
+            features_str += 'ar=adult'
+        elif deceased_character.age < 65:
+            features_str += 'ar=middle-aged'
+        elif deceased_character.age < 75:
+            features_str += 'ar=older'
+        else:
+            features_str += 'ar=elderly'
+        # Set physical characteristics
+
+
 
     @property
     def buildings_on_this_block(self):
@@ -1035,6 +1064,7 @@ class Player(object):
     def narrow(self, features_str):
         """Narrow the matches interlocutor has found by specifying additional features."""
         assert self.interlocutor.matches != [], "Cannot narrow an empty list."
+        self.refrain += ', ' + features_str
         self.do_you_know(features_str, narrow=True)
 
     def pop_back(self):
