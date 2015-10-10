@@ -62,6 +62,11 @@ class Communicator(object):
         scp = SCPClient(ssh.get_transport())
         scp.put(PATH_TO_ACTOR_INTERFACE_HTML_FILE, '~/.html/bad_news/actor.html')
 
+    def speak_directly_to_player(self, exposition):
+        """Manually edit the player interface and display that text."""
+        self.player_exposition = exposition
+        self.update_player_interface()
+
     def test(self):
         """Randomly set an interlocutor and subject of conversation to generate an example actor interface."""
         self.player.interlocutor = random.choice(

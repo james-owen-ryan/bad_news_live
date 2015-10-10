@@ -1375,3 +1375,4 @@ begin = bn.begin
 l = pc.ask_to_list
 ta = pc.talk_about
 bar = pc.goto_bar
+speak = bn.communicator.speak_directly_to_player
