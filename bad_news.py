@@ -36,9 +36,9 @@ class Game(object):
         self.sim.enact_no_fi_simulation()
         self.city = self.sim.city
         self.offline_mode = offline_mode  # Whether James is playtesting, in which case don't show hidden knowledge
-        self.player = Player(game=self)
         self.deceased_character = self._select_deceased_character()
         self.nok = self.next_of_kin = self._determine_all_valid_next_of_kin()
+        self.player = Player(game=self)
         self.player.location = self.deceased_character.location
         # A communicator facilitates communication between the simulation and various game interfaces
         if not offline_mode:
@@ -162,31 +162,54 @@ class Player(object):
     def _determine_initial_refrain(self):
         """Set the player's initial refrain to match the description of the deceased person."""
         deceased_character = self.game.deceased_character
-        features_str = ''
         # Set age range
         if deceased_character.age < 1:
-            features_str += 'ar=infant'
+            features_str = 'ar=infant'
         elif deceased_character.age < 4:
-            features_str += 'ar=toddler'
+            features_str = 'ar=toddler'
         elif deceased_character.age < 10:
-            features_str += 'ar=young'
+            features_str = 'ar=young'
         elif deceased_character.age < 13:
-            features_str += 'ar=preteen'
+            features_str = 'ar=preteen'
         elif deceased_character.age < 20:
-            features_str += 'ar=teenage'
+            features_str = 'ar=teenage'
         elif deceased_character.age < 25:
-            features_str += 'ar=young adult'
+            features_str = 'ar=young adult'
         elif deceased_character.age < 45:
-            features_str += 'ar=adult'
+            features_str = 'ar=adult'
         elif deceased_character.age < 65:
-            features_str += 'ar=middle-aged'
+            features_str = 'ar=middle-aged'
         elif deceased_character.age < 75:
-            features_str += 'ar=older'
+            features_str = 'ar=older'
         else:
-            features_str += 'ar=elderly'
+            features_str = 'ar=elderly'
         # Set physical characteristics
-
-
+        if deceased_character.face.distinctive_features.tattoo == 'yes':
+            features_str += ',tattoo=yes'
+        if deceased_character.face.distinctive_features.scar == 'yes':
+            features_str += ',scar=yes'
+        if deceased_character.face.distinctive_features.birthmark == 'yes':
+            features_str += ',birthmark=yes'
+        if deceased_character.face.distinctive_features.freckles == 'yes':
+            features_str += ',freckles=yes'
+        if deceased_character.face.distinctive_features.glasses == 'yes':
+            features_str += ',glasses=yes'
+        if deceased_character.face.hair.length == 'bald':
+            features_str += ',hl=bald'
+        else:
+            features_str += ',hl={}'.format(deceased_character.face.hair.length)
+            features_str += ',hc={}'.format(deceased_character.face.hair.color)
+        if deceased_character.face.facial_hair.style == 'sideburns':
+            features_str += ',fhsb=yes'
+        elif deceased_character.face.facial_hair.style == 'goatee':
+            features_str += ',fhg=yes'
+        elif deceased_character.face.facial_hair.style == 'full beard':
+            features_str += ',fhfb=yes'
+        elif deceased_character.face.facial_hair.style == 'soul patch':
+            features_str += ',fhsp=yes'
+        elif deceased_character.face.facial_hair.style == 'mustache':
+            features_str += ',fhm=yes'
+        return features_str
 
     @property
     def buildings_on_this_block(self):
