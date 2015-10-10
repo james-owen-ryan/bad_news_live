@@ -364,7 +364,12 @@ class Player(object):
                 self.outside = False
                 self.observe()
             else:
-                print '\nThe gate is locked.\n' if self.location.lot.tract else '\nThe door is locked.\n'
+                exposition = 'The gate is locked.' if self.location.lot.tract else 'The door is locked.'
+                if self.game.offline_mode:
+                    print '\n{exposition}\n'.format(exposition=exposition)
+                else:
+                    self.game.communicator.player_exposition = exposition
+                    self.game.communicator.update_player_interface()
         else:
             if self.location.__class__.__name__ != 'Block':
                 self.location = self.location.block
@@ -374,7 +379,12 @@ class Player(object):
                 self.outside = False
                 self.observe()
             else:
-                print '\nThe gate is locked.\n' if self.location.lot.tract else '\nThe door is locked.\n'
+                exposition = 'The gate is locked.' if self.location.lot.tract else 'The door is locked.'
+                if self.game.offline_mode:
+                    print '\n{exposition}\n'.format(exposition=exposition)
+                else:
+                    self.game.communicator.player_exposition = exposition
+                    self.game.communicator.update_player_interface()
 
     def enter_apt(self, unit_number=None):
         """Enter a building."""
