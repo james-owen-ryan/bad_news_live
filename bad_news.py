@@ -903,49 +903,52 @@ class Player(object):
             self.express_matches()
 
     @staticmethod
-    def _parse_feature_strings(features):
+    def _parse_feature_strings(features_str):
         """Parse a set of feature strings to return a tuple of (feature_name, feature_value) tuples."""
-        features = features.replace(' ', '')  # Remove whitespace
-        features = features.split(',')  # Split on commas
         # First, try to parse as if a name was passed -- this is hacky, but allows a
         # nicely idiomatic default usage of do_you_know(name) while still allowing
         # the more general usage that I specify in the docstring
-        if '=' not in features[0]:
-            first_name, last_name = features[0].split()
+        if '=' not in features_str:
+            first_name, last_name = features_str.split()
             features_list = [('first name', first_name), ('last name', last_name)]
             return features_list
-        # Otherwise, parse all the features specified in the feature strings
-        feature_name_expansions = {
-            's': 'sex', 'hc': 'hair color', 'hl': 'hair length', 'f': 'freckles', 'b': 'birthmark',
-            't': 'tattoo', 'g': 'glasses', 'fhs': 'sideburns', 'fhsb': 'sideburns', 'fhg': 'goatee',
-            'fhfb': 'full beard', 'fhsp': 'soul patch', 'fhm': 'mustache', 'sc': 'broad skin color',
-            'ar': 'age range', 'gl': 'glasses', 'fn': 'first name', 'ln': 'last name', 'mn': 'middle name'
-        }
-        feature_value_expansions = {
-            'bla': 'black', 'br': 'brown', 'bro': 'brown', 'blo': 'blonde', 'ma': 'middle-aged', 'y': 'yes', 'n': 'no',
-            'm': 'male', 'f': 'female', 'l': 'long', 'md': 'medium', 's': 'short', 'b': 'bald', 'e': 'elderly',
-            'o': 'older', 'i': 'infant', 't': 'toddler', 'g': 'gray', 'w': 'white', 'r': 'red', 'ya': 'young adult'
-        }
-        features_list = []
-        for feature in features:
-            feature_name, feature_value = feature.lower().split('=')
-            # Expand abbreviated tags
-            if feature_name in feature_name_expansions:
-                feature_name = feature_name_expansions[feature_name]
-            if feature_value in feature_value_expansions:
-                feature_value = feature_value_expansions[feature_value]
-            # Fix common mistakes
-            if feature_name == 'hair length' and feature_value == 'male':
-                feature_value = 'medium'
-            elif feature_name == 'age range' and feature_value == 'male':
-                feature_value = 'middle-aged'
-            elif feature_name == 'age range' and feature_value == 'yes':
-                feature_value = 'young'
-            # Throw an error for detected mistakes that can't be automatically fixed
-            if feature_name == 'hair color' and feature_value in ('bald', 'bl'):
-                raise Exception("You used the wrong abbreviation for the 'hair color' feature!")
-            features_list.append((feature_name, feature_value))
-        return features_list
+        else:
+            features_str = features_str.replace(' ', '')  # Remove whitespace
+            features = features_str.split(',')  # Split on commas
+            # Otherwise, parse all the features specified in the feature strings
+            feature_name_expansions = {
+                's': 'sex', 'hc': 'hair color', 'hl': 'hair length', 'f': 'freckles', 'b': 'birthmark',
+                't': 'tattoo', 'g': 'glasses', 'fhs': 'sideburns', 'fhsb': 'sideburns', 'fhg': 'goatee',
+                'fhfb': 'full beard', 'fhsp': 'soul patch', 'fhm': 'mustache', 'sc': 'broad skin color',
+                'ar': 'age range', 'gl': 'glasses', 'fn': 'first name', 'ln': 'last name',
+                'mn': 'middle name'
+            }
+            feature_value_expansions = {
+                'bla': 'black', 'br': 'brown', 'bro': 'brown', 'blo': 'blonde', 'ma': 'middle-aged',
+                'y': 'yes', 'n': 'no',  'm': 'male', 'f': 'female', 'l': 'long', 'md': 'medium',
+                's': 'short', 'b': 'bald', 'e': 'elderly', 'o': 'older', 'i': 'infant', 't': 'toddler',
+                'g': 'gray', 'w': 'white', 'r': 'red', 'ya': 'young adult'
+            }
+            features_list = []
+            for feature in features:
+                feature_name, feature_value = feature.lower().split('=')
+                # Expand abbreviated tags
+                if feature_name in feature_name_expansions:
+                    feature_name = feature_name_expansions[feature_name]
+                if feature_value in feature_value_expansions:
+                    feature_value = feature_value_expansions[feature_value]
+                # Fix common mistakes
+                if feature_name == 'hair length' and feature_value == 'male':
+                    feature_value = 'medium'
+                elif feature_name == 'age range' and feature_value == 'male':
+                    feature_value = 'middle-aged'
+                elif feature_name == 'age range' and feature_value == 'yes':
+                    feature_value = 'young'
+                # Throw an error for detected mistakes that can't be automatically fixed
+                if feature_name == 'hair color' and feature_value in ('bald', 'bl'):
+                    raise Exception("You used the wrong abbreviation for the 'hair color' feature!")
+                features_list.append((feature_name, feature_value))
+            return features_list
 
     def express_matches(self, underscore_warning=False):
         """Express the number matches interlocutor found from the mind query."""
@@ -965,7 +968,7 @@ class Player(object):
                 and_they_are_right_here = ''
             print "\nFound a match{and_they_are_right_here}:".format(and_they_are_right_here=and_they_are_right_here)
             self.interlocutor.matches[0].temp_address_number = 999
-            self.talk_about(address_number=999)
+            self.talk_about(subject_reference=999)
         else:
             print "\nFound {} matches.\n".format(len(self.interlocutor.matches))
             if underscore_warning:
@@ -1003,20 +1006,25 @@ class Player(object):
         """Ask interlocutor to list a few more of their potential matches to the player's question."""
         self.ask_to_list(start_index=self.current_list_index, n_to_list=5)
 
-    def talk_about(self, address_number=None):
+    def talk_about(self, subject_reference=None):
         """Change the subject of conversation to the person with the given address number."""
-        self.subject_of_conversation = next(
-            p for p in self.interlocutor.matches if p.temp_address_number == address_number
-        )
-        if not self.game.offline_mode:
-            self.game.communicator.update_actor_interface()
-            # self.interlocutor.mind.mental_models[self.subject_of_conversation].outline()
-        if self.interlocutor.mind.mental_models[self.subject_of_conversation].relations_to_me:
-            self.interlocutor.hinges = [
-                self.interlocutor.mind.mental_models[self.subject_of_conversation].relations_to_me[0][1]
-            ]
-        else:
-            self.interlocutor.hinges = []
+        # If a name of a person was passed, this works as a wrapper around do_you_know() that
+        # is probably more intuitive to call in the heat of the moment
+        if type(subject_reference) == str:
+            self.do_you_know(subject_reference)
+        else:  # A temp address number was passed, i.e., the conventional usage of this method
+            self.subject_of_conversation = next(
+                p for p in self.interlocutor.matches if p.temp_address_number == subject_reference
+            )
+            if not self.game.offline_mode:
+                self.game.communicator.update_actor_interface()
+                # self.interlocutor.mind.mental_models[self.subject_of_conversation].outline()
+            if self.interlocutor.mind.mental_models[self.subject_of_conversation].relations_to_me:
+                self.interlocutor.hinges = [
+                    self.interlocutor.mind.mental_models[self.subject_of_conversation].relations_to_me[0][1]
+                ]
+            else:
+                self.interlocutor.hinges = []
 
     def talk_about_hinge(self, address_number=None):
         """Change the subject of conversation to the hinge between interlocutor and the current subject."""
