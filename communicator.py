@@ -29,11 +29,7 @@ class Communicator(object):
         self.actor_template = template_env.get_template('actor.html')
 
     def update_player_interface(self):
-        """Update the player interface by re-writing its HTML file.
-
-        NOTE: It is the responsibility of the web browser that we have set up for
-        the player to constantly be reloading this page.
-        """
+        """Update the player interface by re-writing its HTML file."""
         # Fill in the template
         rendered_player_template = self.player_template.render(communicator=self)
         # Write that out as a local file
@@ -48,11 +44,7 @@ class Communicator(object):
         scp.put(PATH_TO_PLAYER_INTERFACE_HTML_FILE, '~/.html/bad_news/player.html')
 
     def update_actor_interface(self):
-        """Update the actor interface by re-writing its HTML file.
-
-        NOTE: It is the responsibility of the web browser that we have set up for
-        the actor to constantly be reloading this page.
-        """
+        """Update the actor interface by re-writing its HTML file."""
         # Fill in the template
         rendered_actor_template = self.actor_template.render(communicator=self)
         # Write that out as a local file
