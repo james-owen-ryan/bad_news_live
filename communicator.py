@@ -1,3 +1,4 @@
+import random
 import jinja2
 from paramiko import SSHClient
 from scp import SCPClient
@@ -57,6 +58,17 @@ class Communicator(object):
         ssh.connect(hostname='soe.ucsc.edu', username='jor', password=ZZZ)
         scp = SCPClient(ssh.get_transport())
         scp.put(PATH_TO_ACTOR_INTERFACE_HTML_FILE, '~/.html/bad_news/actor.html')
+
+    def test(self):
+        """Randomly set an interlocutor and subject of conversation to generate an example actor interface."""
+        self.player.interlocutor = random.choice(
+            [p for p in self.game.city.residents if
+             any(q for q in p.mind.mental_models if q.type == 'person')]
+        )
+        self.player.subject_of_conversation = random.choice(
+            [q for q in self.interlocutor.mind.mental_models if q.type == 'person']
+        )
+        self.update_actor_interface()
 
     @property
     def interlocutor(self):
@@ -666,10 +678,15 @@ class Communicator(object):
                 # Either no spouse, or no spouse in interlocutor's mental models, so return
                 # the marital status then
                 subject = self.player.subject_of_conversation
-                facet = '{marital status} {confidence}'.format(
-                    marital_status=self.interlocutor.mind.mental_models[subject].status.marital_status,
-                    confidence=self.interlocutor.mind.mental_models[subject].status.marital_status.strength_str
-                )
+                facet_object = self.interlocutor.mind.mental_models[subject].status.marital_status
+                if facet_object:
+                    confidence = facet_object.strength_str
+                    facet = '{marital_status} {confidence}'.format(
+                        marital_status=facet_object,
+                        confidence=confidence
+                    )
+                else:
+                    facet = '? (-)'
                 return facet
         else:
             return ''
