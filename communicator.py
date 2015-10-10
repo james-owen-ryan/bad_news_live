@@ -679,7 +679,8 @@ class Communicator(object):
             if (self.player.subject_of_conversation.spouse and
                     self.player.subject_of_conversation.spouse in self.interlocutor.mind.mental_models):
                 mental_model = self.interlocutor.mind.mental_models[self.player.subject_of_conversation.spouse]
-                facet = "{first_name} {last_name} ({status})".format(
+                facet = "{nok_marker}{first_name} {last_name} ({status})".format(
+                    nok_marker='!' if self.player.subject_of_conversation.spouse in self.game.next_of_kin else '',
                     first_name=mental_model.name.first_name if mental_model.name.first_name else '?',
                     last_name=mental_model.name.last_name if mental_model.name.last_name else '?',
                     status=mental_model.status.status if mental_model.status.status else '?'
@@ -712,7 +713,8 @@ class Communicator(object):
             ]
             if parents:
                 names_str = ', '.join(
-                    '{} {} ({})'.format(
+                    '{}{} {} ({})'.format(
+                        '!' if p in self.game.next_of_kin else '',
                         self.interlocutor.mind.mental_models[p].name.first_name if
                         self.interlocutor.mind.mental_models[p].name.first_name else '?',
                         self.interlocutor.mind.mental_models[p].name.last_name if
@@ -735,7 +737,8 @@ class Communicator(object):
             ]
             if kids:
                 names_str = ', '.join(
-                    '{} {} ({})'.format(
+                    '{}{} {} ({})'.format(
+                        '!' if k in self.game.next_of_kin else '',
                         self.interlocutor.mind.mental_models[k].name.first_name if
                         self.interlocutor.mind.mental_models[k].name.first_name else '?',
                         self.interlocutor.mind.mental_models[k].name.last_name if
@@ -758,7 +761,8 @@ class Communicator(object):
             ]
             if siblings:
                 names_str = ', '.join(
-                    '{} {} ({})'.format(
+                    '{}{} {} ({})'.format(
+                        '!' if s in self.game.next_of_kin else '',
                         self.interlocutor.mind.mental_models[s].name.first_name if
                         self.interlocutor.mind.mental_models[s].name.first_name else '?',
                         self.interlocutor.mind.mental_models[s].name.last_name if
@@ -788,7 +792,8 @@ class Communicator(object):
             ]
             if known_extended_family:
                 names_str = ', '.join(
-                    '{} {} ({}; {})'.format(
+                    '{}{} {} ({}; {})'.format(
+                        '!' if ef in self.game.next_of_kin else '',
                         self.interlocutor.mind.mental_models[ef].name.first_name if
                         self.interlocutor.mind.mental_models[ef].name.first_name else '?',
                         self.interlocutor.mind.mental_models[ef].name.last_name if
@@ -820,7 +825,10 @@ class Communicator(object):
     def last_interlocutor_name(self):
         """Return the name of the last interlocutor actor played."""
         if self.last_interlocutor:
-            return self.last_interlocutor.name
+            if self.last_interlocutor in self.game.next_of_kin:
+                return '!' + self.last_interlocutor.name
+            else:
+                return self.last_interlocutor.name
         else:
             return ''
 
@@ -862,7 +870,10 @@ class Communicator(object):
     def penultimate_interlocutor_name(self):
         """Return the name of the penultimate interlocutor actor played."""
         if self.penultimate_interlocutor:
-            return self.penultimate_interlocutor.name
+            if self.penultimate_interlocutor in self.game.next_of_kin:
+                return '!' + self.penultimate_interlocutor.name
+            else:
+                return self.penultimate_interlocutor.name
         else:
             return ''
 
@@ -904,7 +915,10 @@ class Communicator(object):
     def antepenultimate_interlocutor_name(self):
         """Return the name of the antepenultimate interlocutor actor played."""
         if self.antepenultimate_interlocutor:
-            return self.antepenultimate_interlocutor.name
+            if self.antepenultimate_interlocutor in self.game.next_of_kin:
+                return '!' + self.antepenultimate_interlocutor.name
+            else:
+                return self.antepenultimate_interlocutor.name
         else:
             return ''
 
