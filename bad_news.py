@@ -1262,3 +1262,4 @@ d = bn.deceased_character
 nok = bn.next_of_kin
 uai = bn.communicator.update_actor_interface
 upi = bn.communicator.update_player_interface
+test = bn.communicator.test
