@@ -38,12 +38,9 @@ class Game(object):
         self.offline_mode = offline_mode  # Whether James is playtesting, in which case don't show hidden knowledge
         self.player = Player(game=self)
         self.deceased_character = self._select_deceased_character()
-        self.player.location = self.deceased_character.location
-        # Don't actually kill the character, just remove them from the simulation
-        # by removing them from the 'residents' attribute of the gameplay city;
-        # if we kill the character, a bunch of issues arise
-        self.city.residents.remove(self.deceased_character)
+        self._simulate_the_death()
         self.nok = self.next_of_kin = self._determine_all_valid_next_of_kin()
+        self.player.location = self.deceased_character.location
         # A communicator facilitates communication between the simulation and various game interfaces
         if not offline_mode:
             self.communicator = Communicator(game=self)
@@ -75,6 +72,15 @@ class Game(object):
             p.greatgrandparents | p.grandparents | p.aunts | p.uncles | p.nieces | p.nephews | p.cousins
         ]
         return random.choice(potential_selections)
+
+    def _simulate_the_death(self):
+        """Simulate the death of the deceased character without actually killing them."""
+        # Don't actually kill the character, just remove them from the simulation
+        # by removing them from the 'residents' attribute of the gameplay city;
+        # if we kill the character, a bunch of issues arise
+        self.city.residents.remove(self.deceased_character)
+        # self.deceased_character.location.people_here_now.remove(self.deceased_character)
+        self.deceased_character.description += ' (deceased)'
 
     def _determine_all_valid_next_of_kin(self):
         """Determine all the characters in town who could be successfully notified as the next of kin."""
