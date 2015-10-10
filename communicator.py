@@ -681,7 +681,7 @@ class Communicator(object):
                 facet_object = self.interlocutor.mind.mental_models[subject].status.marital_status
                 if facet_object:
                     confidence = facet_object.strength_str
-                    facet = '{marital_status} {confidence}'.format(
+                    facet = '{marital_status} ({confidence})'.format(
                         marital_status=facet_object,
                         confidence=confidence
                     )
