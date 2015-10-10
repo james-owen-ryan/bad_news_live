@@ -170,6 +170,10 @@ class Player(object):
 
         If no location exists at this address, move them simply to the associated block.
         """
+        if self.location.type == 'block':
+            lot_i_came_from = self.location.lots[0]
+        else:
+            lot_i_came_from = self.location.lot
         # Since this method is called when a player's location changes, it also
         # makes sense to end the character's current conversation, if any, because
         # usually this will co-occur with a command to move locations
@@ -187,21 +191,35 @@ class Player(object):
             )
             self.outside = True
             self.places_i_have_been.append(self.location)
-            self.observe()
+            lot_i_traveled_to = self.location.lot
+            n_blocks_traveled = self.city.distance_between(lot_i_came_from, lot_i_traveled_to)
+            distance_traveled = '{n} block{pl}'.format(
+                n=NUMERAL_TO_WORD[n_blocks_traveled],
+                pl='s' if n_blocks_traveled != 1 else ''
+            )
+            self.observe(distance_traveled=distance_traveled)
         except StopIteration:
             # Arrive then at that block
             house_number = int(address[:3])
             block_number = int(address[0] + '00')
             street_object = self._find_street_object(address)
             block_object = next(b for b in self.city.blocks if b.number == block_number and b.street is street_object)
+            lot_i_traveled_to = self.location.lots[0]
+            n_blocks_traveled = self.city.distance_between(lot_i_came_from, lot_i_traveled_to)
+            distance_traveled = '{n} block{pl}'.format(
+                n=NUMERAL_TO_WORD[n_blocks_traveled],
+                pl='s' if n_blocks_traveled != 1 else ''
+            )
             if self.game.offline_mode:
-                print "Arriving at the {}, you find no building with the house number {}.\n".format(
-                    block_object, house_number
+                print "After traveling {} to the {}, you find no building with the house number {}.\n".format(
+                    NUMERAL_TO_WORD[distance_traveled], block_object, house_number
                 )
                 exposition_prefix = None
             else:
-                exposition_prefix = "Arriving at the {}, you find no building with the house number {}.".format(
-                    block_object, house_number
+                exposition_prefix = (
+                    "After traveling {} to the {}, you find no building with the house number {}.".format(
+                        NUMERAL_TO_WORD[distance_traveled], block_object, house_number
+                    )
                 )
             self.goto_block(block=block_object, exposition_prefix=exposition_prefix)
 
@@ -268,6 +286,10 @@ class Player(object):
     def goto_bar(self):
         """Go to the closest bar in town."""
         self.goto_nearest('Bar')
+
+    def goto_restaurant(self):
+        """Go to the closest restaurant in town."""
+        self.goto_nearest('Restaurant')
 
     def goto_school(self):
         """Go to the K-12 school in town."""
@@ -425,21 +447,29 @@ class Player(object):
         self.location = self.location.block
         self.observe()
 
-    def observe(self, exposition_prefix=None, update_enumeration_only=False):
+    def observe(self, exposition_prefix=None, update_enumeration_only=False, distance_traveled=None):
         """Describe the player's current setting."""
         if self.outside:  # Interior scenes
             if self.location.type == 'block':
-                exposition, enumeration = self._describe_the_block_player_is_on()
+                exposition, enumeration = self._describe_the_block_player_is_on(
+
+                    distance_traveled=distance_traveled)
             elif self.location.__class__.__name__ == 'House':
-                exposition = self._describe_house_exterior()
+                exposition = self._describe_house_exterior(
+                    distance_traveled=distance_traveled
+                )
                 enumeration = ''
             elif self.location.__class__.__name__ == 'Apartment':
                 exposition = self._describe_apartment_unit_exterior()
                 enumeration = ''
             elif self.location.__class__.__name__ == 'ApartmentComplex':
-                exposition, enumeration = self._describe_apartment_complex_exterior()
+                exposition, enumeration = self._describe_apartment_complex_exterior(
+                    distance_traveled=distance_traveled
+                )
             else:  # Business
-                exposition = self._describe_business_exterior()
+                exposition = self._describe_business_exterior(
+                    distance_traveled=distance_traveled
+                )
                 enumeration = ''
         else:  # Exterior scenes
             if self.location.type == 'residence':
@@ -464,21 +494,35 @@ class Player(object):
             self.game.communicator.player_exposition_enumeration = enumeration
             self.game.communicator.update_player_interface()
 
-    def _describe_the_block_player_is_on(self):
+    def _describe_the_block_player_is_on(self, distance_traveled=None):
         """Describe the block that the player is on."""
         buildings_on_this_block = [lot.building for lot in self.location.lots if lot.building]
         if buildings_on_this_block:
             buildings_enumeration = self._describe_buildings_on_block()
             if len(buildings_on_this_block) > 1:
-                exposition = "You are on the {}. There are {} buildings here:".format(
-                    self.location, NUMERAL_TO_WORD[len(buildings_on_this_block)], buildings_enumeration
+                exposition = "{} the {}. There are {} buildings here:".format(
+                    "You are at" if not distance_traveled else "You traveled {} to".format(
+                        distance_traveled
+                    ),
+                    self.location,
+                    NUMERAL_TO_WORD[len(buildings_on_this_block)],
+                    buildings_enumeration
                 )
             else:
-                exposition = "You are on the {}. There is one building here:".format(
-                    self.location, buildings_enumeration
+                exposition = "{} the {}. There is one building here:".format(
+                    "You are at" if not distance_traveled else "You traveled {} to".format(
+                        distance_traveled
+                    ),
+                    self.location,
+                    buildings_enumeration
                 )
         else:
-            exposition = "You are on the {}. There are no buildings here.".format(self.location)
+            exposition = "{intro} the {}. There are no buildings here.".format(
+                "You are at" if not distance_traveled else "You traveled {} to".format(
+                    distance_traveled
+                ),
+                self.location
+            )
             buildings_enumeration = ''
         return exposition, buildings_enumeration
 
@@ -530,7 +574,7 @@ class Player(object):
                     )
         return description
 
-    def _describe_house_exterior(self):
+    def _describe_house_exterior(self, distance_traveled=None):
         """Describe the house whose doorstep the player is standing on."""
         if self.location in self.houses_i_know_by_name:
             whose_house = "{person_i_know_lives_here}'s house".format(
@@ -546,8 +590,11 @@ class Player(object):
             noise_of_activity_inside = "nothing inside"
         if self.game.sim.time_of_day == "night":
             exposition = (
-                "You are at the doorstep of {whose_house} at {address}. "
+                "{intro} the doorstep of {whose_house} at {address}. "
                 "Its lights are {lights_on}, its door is {door_locked}, and you hear {noise_of_activity_inside}.".format(
+                    intro="You are at" if not distance_traveled else "You traveled {} to".format(
+                        distance_traveled
+                    ),
                     whose_house=whose_house,
                     address=self.location.address,
                     lights_on="on" if self.location.people_here_now else "off",
@@ -557,8 +604,11 @@ class Player(object):
             )
         else:
             exposition = (
-                "You are at the doorstep of {whose_house} at {address}. "
+                "{intro} the doorstep of {whose_house} at {address}. "
                 "Its door is {door_locked} and you hear {noise_of_activity_inside}.".format(
+                    intro="You are at" if not distance_traveled else "You traveled {} to".format(
+                        distance_traveled
+                    ),
                     whose_house=whose_house,
                     address=self.location.address,
                     door_locked="locked" if self.location.locked else "unlocked",
@@ -598,7 +648,7 @@ class Player(object):
         )
         return exposition
 
-    def _describe_apartment_complex_exterior(self):
+    def _describe_apartment_complex_exterior(self, distance_traveled=None):
         """Describe the apartment complex, particularly its intercom system, that the player is outside of."""
         try:
             janitor_in_lobby = next(e for e in self.location.working_right_now if e[0] == 'janitor')
@@ -609,8 +659,11 @@ class Player(object):
         else:
             lobby_str = " and the lobby is empty"
         exposition = (
-            "You are outside {complex_name} at {address}. Its entrance is locked{lobby_str}. There "
+            "{intro} the entrance of {complex_name} at {address}. Its entrance is locked{lobby_str}. There "
             "are {n_options} options listed on the intercom system:".format(
+                intro="You are at" if not distance_traveled else "You traveled {} to".format(
+                    distance_traveled
+                ),
                 complex_name=self.location.name,
                 address=self.location.address,
                 lobby_str=lobby_str,
@@ -643,7 +696,7 @@ class Player(object):
         )
         return intercom_description
 
-    def _describe_business_exterior(self):
+    def _describe_business_exterior(self, distance_traveled=None):
         """Describe the business a player is outside of."""
         if len(self.location.people_here_now) > 8:
             n_people_inside = "many people"
@@ -665,9 +718,12 @@ class Player(object):
         else:
             conjunction = ' and'
         exposition = (
-            "You are at the entrance of {business_name} at {address}. "
+            "{intro} the entrance of {business_name} at {address}. "
             "Its {gate_or_door} is {door_locked}{conjunction} you see {n_people_inside} "
             "{inside_or_on_premises}.".format(
+                intro="You are at" if not distance_traveled else "You traveled {} to".format(
+                    distance_traveled
+                ),
                 business_name=self.location.name if self.location.__class__.__name__ != 'Farm' else 'a farm',
                 address=self.location.address,
                 gate_or_door="gate" if self.location.lot.tract else "door",
@@ -827,7 +883,7 @@ class Player(object):
             if len(self.location.people_here_now) == 1:
                 self.interlocutor = list(self.location.people_here_now)[0]
                 self.game.communicator.update_actor_interface()
-                exposition = "You are talking to {age_and_gender_nominal} with {appearance} [{i}]. {nearby}".format(
+                exposition = "You are approaching {age_and_gender_nominal} with {appearance} [{i}]. {nearby}".format(
                     age_and_gender_nominal=self.interlocutor.age_and_gender_description,
                     appearance=self.interlocutor.basic_appearance_description,
                     i='<b>{}</b>'.format(self.interlocutor.temp_address_number),
@@ -837,7 +893,7 @@ class Player(object):
                 if any(p for p in self.location.people_here_now if p.name == name):
                     self.interlocutor = next(p for p in self.location.people_here_now if p.name == name)
                     self.game.communicator.update_actor_interface()
-                    exposition = "You are talking to {age_and_gender_nominal} with {appearance} [{i}]. {nearby}".format(
+                    exposition = "You are approaching {age_and_gender_nominal} with {appearance} [{i}]. {nearby}".format(
                         age_and_gender_nominal=self.interlocutor.age_and_gender_description,
                         appearance=self.interlocutor.basic_appearance_description,
                         i='<b>{}</b>'.format(self.interlocutor.temp_address_number),
@@ -848,7 +904,7 @@ class Player(object):
                         p for p in self.location.people_here_now if p.temp_address_number == address_number
                     )
                     self.game.communicator.update_actor_interface()
-                    exposition = "You are talking to {age_and_gender_nominal} with {appearance} [{i}]. {nearby}".format(
+                    exposition = "You are approaching {age_and_gender_nominal} with {appearance} [{i}]. {nearby}".format(
                         age_and_gender_nominal=self.interlocutor.age_and_gender_description,
                         appearance=self.interlocutor.basic_appearance_description,
                         i='<b>{}</b>'.format(self.interlocutor.temp_address_number),
@@ -1318,3 +1374,4 @@ test = bn.communicator.test
 begin = bn.begin
 l = pc.ask_to_list
 ta = pc.talk_about
+bar = pc.goto_bar
