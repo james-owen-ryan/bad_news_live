@@ -860,30 +860,27 @@ class Player(object):
             self.interlocutor = None
             self.game.communicator.update_actor_interface()
 
-    def do_you_know(self, *features, **narrow):
+    def do_you_know(self, features_str, narrow=False):
         """Return a ask_to_list of all the mental models interlocutor has that match the given features.
 
         Features should be a ask_to_list of tuples, where the first element of each tuple is a feature
         type and the second element is the corresponding feature value, e.g., ('hair color',
         'brown') or ('first name', 'Paul').
         """
-        if not features:
-            features = self.refrain
+        if not features_str:
+            features_str = self.refrain
         else:
-            self.refrain = features
-        features = self._parse_feature_strings(*features)
-        # Check if we are narrowing, i.e., whether we are refining a ask_to_list of
-        # matches to an earlier query
-        narrowing = any(k for k in narrow if k == 'narrow' and narrow[k] is True)
+            self.refrain = features_str
+        features = self._parse_feature_strings(features_str)
         # Build a lambda function that we will use to build a list of
         # all the people in interlocutor's mind that match the given features
         matches_description = (
             lambda mental_model: all(
                 str(mental_model.get_facet_to_this_belief_of_type(feature[0])) == feature[1]
-                for feature in features if features
+                for feature in features if feature
             )
         )
-        pool_searching_in = self.interlocutor.mind.mental_models if not narrowing else self.interlocutor.matches
+        pool_searching_in = self.interlocutor.mind.mental_models if not narrow else self.interlocutor.matches
         self.interlocutor.earlier_matches = list(self.interlocutor.matches)
         self.interlocutor.matches = [
             p for p in pool_searching_in if
@@ -896,8 +893,10 @@ class Player(object):
             self.express_matches()
 
     @staticmethod
-    def _parse_feature_strings(*features):
+    def _parse_feature_strings(features):
         """Parse a set of feature strings to return a tuple of (feature_name, feature_value) tuples."""
+        features = features.replace(' ', '')  # Remove whitespace
+        features = features.split(',')  # Split on commas
         # First, try to parse as if a name was passed -- this is hacky, but allows a
         # nicely idiomatic default usage of do_you_know(name) while still allowing
         # the more general usage that I specify in the docstring
@@ -915,7 +914,7 @@ class Player(object):
         feature_value_expansions = {
             'bla': 'black', 'br': 'brown', 'bro': 'brown', 'blo': 'blonde', 'ma': 'middle-aged', 'y': 'yes', 'n': 'no',
             'm': 'male', 'f': 'female', 'l': 'long', 'md': 'medium', 's': 'short', 'b': 'bald', 'e': 'elderly',
-            'o': 'older', 'i': 'infant', 't': 'toddler',
+            'o': 'older', 'i': 'infant', 't': 'toddler', 'g': 'gray', 'w': 'white', 'r': 'red'
         }
         features_list = []
         for feature in features:
@@ -962,10 +961,10 @@ class Player(object):
             if underscore_warning:
                 print '\nWarning: You put an underscore in one of the features.\n'
 
-    def narrow(self, *features):
+    def narrow(self, features_str):
         """Narrow the matches interlocutor has found by specifying additional features."""
-        assert self.interlocutor.matches != [], "Cannot narrow down an empty list any further."
-        self.do_you_know(*features, narrow=True)
+        assert self.interlocutor.matches != [], "Cannot narrow an empty list."
+        self.do_you_know(features_str, narrow=True)
 
     def pop_back(self):
         """Pop back to the last good set of matches after narrowing too far."""
@@ -1233,9 +1232,9 @@ class Player(object):
         """Wrapper for self.subject_of_conversation."""
         return self.subject_of_conversation
 
-    def dyk(self, *features):
+    def dyk(self, features_str):
         """A wrapper around do_you_know()."""
-        self.do_you_know(*features, narrow=False)
+        self.do_you_know(features_str, narrow=False)
 
     def atl(self):
         """Wrapper around ask_to_list()."""
