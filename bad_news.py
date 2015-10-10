@@ -39,14 +39,17 @@ class Game(object):
         self.player = Player(game=self)
         self.deceased_character = self._select_deceased_character()
         self.player.location = self.deceased_character.location
-        self.deceased_character.die('Unknown causes')
+        # Don't actually kill the character, just remove them from the simulation
+        # by removing them from the 'residents' attribute of the gameplay city;
+        # if we kill the character, a bunch of issues arise
+        self.city.residents.remove(self.deceased_character)
         self.nok = self.next_of_kin = self._determine_all_valid_next_of_kin()
         # A communicator facilitates communication between the simulation and various game interfaces
         if not offline_mode:
             self.communicator = Communicator(game=self)
         else:
             self.communicator = None
-        self._render_opening_exposition()
+        self._compose_opening_exposition()
         self._init_set_up_helper_attributes()
 
     def _init_set_up_helper_attributes(self):
@@ -93,7 +96,7 @@ class Game(object):
         ):
             return [ef for ef in self.deceased_character.extended_family if ef.present]
 
-    def _render_opening_exposition(self):
+    def _compose_opening_exposition(self):
         """Render the initial exposition that opens the game."""
         opening_exposition = (
             "It is {nighttime_or_daytime}, {date}. You are alone in {a_house_or_apartment} at {address} "
@@ -114,16 +117,19 @@ class Game(object):
         if self.offline_mode:
             print '\n{}\n'.format(opening_exposition)
         else:
-            # Will display on the player interface
+            # Set this now and it will display on the player interface when
+            # 'begin()' is called -- otherwise, we could screw up the interface
+            # of a game already in progress while this sim is being prepared
             self.communicator.player_exposition = opening_exposition
-            self.communicator.update_player_interface()
-            # TEST DELETE TODO
-            self.player.interlocutor = self.sim.random_person
-            self.communicator.update_actor_interface()
 
     def advance_timestep(self):
         """Advance to the next timestep."""
         self.sim.enact_no_fi_simulation()
+
+    def begin(self):
+        """Start rendering the player and actor interfaces."""
+        self.communicator.update_player_interface()
+        self.communicator.update_actor_interface()
 
 
 class Player(object):
@@ -1263,3 +1269,4 @@ nok = bn.next_of_kin
 uai = bn.communicator.update_actor_interface
 upi = bn.communicator.update_player_interface
 test = bn.communicator.test
+begin = bn.begin
