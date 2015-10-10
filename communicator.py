@@ -662,6 +662,15 @@ class Communicator(object):
                     status=mental_model.status.status if mental_model.status.status else '?'
                 )
                 return facet
+            else:
+                # Either no spouse, or no spouse in interlocutor's mental models, so return
+                # the marital status then
+                subject = self.player.subject_of_conversation
+                facet = '{marital status} {confidence}'.format(
+                    marital_status=self.interlocutor.mind.mental_models[subject].status.marital_status,
+                    confidence=self.interlocutor.mind.mental_models[subject].status.marital_status.strength_str
+                )
+                return facet
         else:
             return ''
 
@@ -675,7 +684,7 @@ class Communicator(object):
             ]
             if parents:
                 names_str = ', '.join(
-                    '{} {}'.format(
+                    '{} {} ({})'.format(
                         self.interlocutor.mind.mental_models[p].name.first_name if
                         self.interlocutor.mind.mental_models[p].name.first_name else '?',
                         self.interlocutor.mind.mental_models[p].name.last_name if
@@ -721,7 +730,7 @@ class Communicator(object):
             ]
             if siblings:
                 names_str = ', '.join(
-                    '{} {}'.format(
+                    '{} {} ({})'.format(
                         self.interlocutor.mind.mental_models[s].name.first_name if
                         self.interlocutor.mind.mental_models[s].name.first_name else '?',
                         self.interlocutor.mind.mental_models[s].name.last_name if
