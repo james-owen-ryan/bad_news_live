@@ -1245,6 +1245,14 @@ class Player(object):
         """Wrapper around talk_about_hinge()."""
         self.talk_about_hinge(address_number=address_number)
 
+    def ap(self, addressee=None):
+        """Wrapper around address()."""
+        self.address(addressee=addressee)
+
+    def ad(self, house_number=None):
+        """Wrapper around approach()."""
+        self.approach(house_number=house_number)
+
 
 offline_mode = False
 bn = Game(offline_mode=offline_mode)
