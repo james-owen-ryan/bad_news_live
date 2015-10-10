@@ -8,6 +8,7 @@
     <style>
     .timer {
       text-align: center;
+      color: black;
       font-family: 'Quicksand', sans-serif;
       font-weight: 400;
       font-size: 28px;
@@ -23,14 +24,20 @@
             minutes = minutes < 10 ? "0" + minutes : minutes;
             seconds = seconds < 10 ? "0" + seconds : seconds;
             display.text(minutes + ":" + seconds);
-            if (--timer < 0) {
-                timer = duration;
+            if (--timer < 30) {
+              var timerDiv = document.querySelector("#countdown");
+              if (timerDiv.style.color != "black") {
+                timerDiv.style.color = "black";
+              }
+              else {
+                timerDiv.style.color = "white";
+              }
             }
         }, 1000);
     }
 
     jQuery(function ($) {
-        var fifteenMinutes = 60 * 15,
+        var fifteenMinutes = 10,
             display = $('#countdown');
         startTimer(fifteenMinutes, display);
     });
