@@ -314,16 +314,16 @@
 			<span id="previousCharacterSpan" class="dynamicData">
 				<ul id="previousCharacterList" class="dynamicList">
 					<li>
-						<span class="previousCharacterName">Walter Jones</span>
-						<span class="previousCharacterDescription">33 year old Lawyer</span>
+						<span class="previousCharacterName">{{ communicator.last_interlocutor_name }}</span>
+						<span class="previousCharacterDescription">{{ communicator.last_interlocutor_description }}</span>
 					</li>
 					<li>
-						<span class="previousCharacterName">Greg Gugeinheim</span>
-						<span class="otherCharacterDescription">58 year old used car salesman</span>
+						<span class="previousCharacterName">{{ communicator.penultimate_interlocutor_name }}</span>
+						<span class="otherCharacterDescription">{{ communicator.penultimate_interlocutor_description }}</span>
 					</li>
 					<li>
-						<span class="previousCharacterName">Sarah Tandy</span>
-						<span class="otherCharacterDescription">22 year old mechanic</span>
+						<span class="previousCharacterName">{{ communicator.antepenultimate_interlocutor_name }}</span>
+						<span class="otherCharacterDescription">{{ communicator.antepenultimate_interlocutor_description }}</span>
 					</li>
 				</ul>
 			</span>

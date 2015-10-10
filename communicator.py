@@ -113,7 +113,10 @@ class Communicator(object):
     def interlocutor_full_name(self):
         """Return the interlocutor's full name."""
         if self.interlocutor:
-            return self.interlocutor.full_name
+            if self.interlocutor in self.game.next_of_kin:
+                return '!' + self.interlocutor.full_name
+            else:
+                return self.interlocutor.full_name
         else:
             return '-'
 
@@ -798,3 +801,129 @@ class Communicator(object):
                 )
                 return names_str
         return ''
+
+    @property
+    def last_interlocutor(self):
+        """Return the last interlocutor actor played (prior to the current one)."""
+        if not self.player.interlocutor:
+            if self.player.all_interlocutors:
+                return self.player.all_interlocutors[-1]
+            else:
+                return ''
+        else:
+            if len(self.player.all_interlocutors) > 1:
+                return self.player.all_interlocutors[-2]
+            else:
+                return ''
+
+    @property
+    def last_interlocutor_name(self):
+        """Return the name of the last interlocutor actor played."""
+        if self.last_interlocutor:
+            return self.last_interlocutor.name
+        else:
+            return ''
+
+    @property
+    def last_interlocutor_description(self):
+        """Return a short description of the last interlocutor actor played."""
+        last_interlocutor = self.last_interlocutor
+        if not last_interlocutor:
+            return ''
+        if last_interlocutor.occupation:
+            occupation = last_interlocutor.occupation.vocation
+        elif last_interlocutor.retired:
+            occupation = 'retiree'
+        elif last_interlocutor.age < 18:
+            occupation = 'student'
+        elif last_interlocutor.female and last_interlocutor.kids_at_home:
+            occupation = 'stay-at-home mom'
+        else:
+            occupation = 'person'
+        return "{age}-year-old {occupation}".format(
+            age=last_interlocutor.age, occupation=occupation
+        )
+
+    @property
+    def penultimate_interlocutor(self):
+        """Return the penultimate interlocutor that actor played."""
+        if not self.player.interlocutor:
+            if len(self.player.all_interlocutors) > 1:
+                return self.player.all_interlocutors[-2]
+            else:
+                return ''
+        else:
+            if len(self.player.all_interlocutors) > 2:
+                return self.player.all_interlocutors[-3]
+            else:
+                return ''
+
+    @property
+    def penultimate_interlocutor_name(self):
+        """Return the name of the penultimate interlocutor actor played."""
+        if self.penultimate_interlocutor:
+            return self.penultimate_interlocutor.name
+        else:
+            return ''
+
+    @property
+    def penultimate_interlocutor_description(self):
+        """Return a short description of the penultimate interlocutor actor played."""
+        penultimate_interlocutor = self.penultimate_interlocutor
+        if not penultimate_interlocutor:
+            return ''
+        if penultimate_interlocutor.occupation:
+            occupation = penultimate_interlocutor.occupation.vocation
+        elif penultimate_interlocutor.retired:
+            occupation = 'retiree'
+        elif penultimate_interlocutor.age < 18:
+            occupation = 'student'
+        elif penultimate_interlocutor.female and penultimate_interlocutor.kids_at_home:
+            occupation = 'stay-at-home mom'
+        else:
+            occupation = 'person'
+        return "{age}-year-old {occupation}".format(
+            age=penultimate_interlocutor.age, occupation=occupation
+        )
+
+    @property
+    def antepenultimate_interlocutor(self):
+        """Return the antepenultimate interlocutor that actor played."""
+        if not self.player.interlocutor:
+            if len(self.player.all_interlocutors) > 2:
+                return self.player.all_interlocutors[-3]
+            else:
+                return ''
+        else:
+            if len(self.player.all_interlocutors) > 3:
+                return self.player.all_interlocutors[-4]
+            else:
+                return ''
+
+    @property
+    def antepenultimate_interlocutor_name(self):
+        """Return the name of the antepenultimate interlocutor actor played."""
+        if self.antepenultimate_interlocutor:
+            return self.antepenultimate_interlocutor.name
+        else:
+            return ''
+
+    @property
+    def antepenultimate_interlocutor_description(self):
+        """Return a short description of the antepenultimate interlocutor actor played."""
+        antepenultimate_interlocutor = self.antepenultimate_interlocutor
+        if not antepenultimate_interlocutor:
+            return ''
+        if antepenultimate_interlocutor.occupation:
+            occupation = antepenultimate_interlocutor.occupation.vocation
+        elif antepenultimate_interlocutor.retired:
+            occupation = 'retiree'
+        elif antepenultimate_interlocutor.age < 18:
+            occupation = 'student'
+        elif antepenultimate_interlocutor.female and antepenultimate_interlocutor.kids_at_home:
+            occupation = 'stay-at-home mom'
+        else:
+            occupation = 'person'
+        return "{age}-year-old {occupation}".format(
+            age=antepenultimate_interlocutor.age, occupation=occupation
+        )
