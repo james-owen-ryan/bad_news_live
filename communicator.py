@@ -941,3 +941,20 @@ class Communicator(object):
         return "{age}-year-old {occupation}".format(
             age=antepenultimate_interlocutor.age, occupation=occupation
         )
+
+    @property
+    def next_of_kin_description(self):
+        """An expression of all the next of kin to afford actor drama management."""
+        description = ''
+        for i in xrange(len(self.game.next_of_kin)):
+            nok = self.game.next_of_kin[i]
+            name = '!' + nok.name
+            relation_to_interlocutor = 'n/a' if not self.interlocutor else self.interlocutor.relation_to_me(nok)
+            current_location = nok.location.name
+            description += '{line_break}{name} ({relation_to_i}; {current_location})'.format(
+                line_break='<br>' if i != 0 else '',
+                name=name,
+                relation_to_i=relation_to_interlocutor,
+                current_location=current_location
+            )
+        return description
