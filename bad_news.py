@@ -1364,7 +1364,7 @@ class Player(object):
         """Notify interlocutor that the deceased person has died."""
         # Determine whether the notified person was a next of kin
         if self.interlocutor in self.game.next_of_kin:
-            verdict = "You have successfully notified the next of kin. You win!"
+            verdict = "You have successfully notified the next of kin. You have delivered the bad news. You win!"
         else:
             verdict = "You have notified the wrong person. You lose."
         # Express this outcome to the player
