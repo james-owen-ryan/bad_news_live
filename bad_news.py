@@ -1375,6 +1375,14 @@ class Player(object):
             self.game.communicator.player_exposition_enumeration = ''
             self.game.communicator.update_player_interface()
 
+    def notify_random_person(self):
+        """As a last-ditch effort, notify a random person in the player's location."""
+        assert self.location.type != 'block', "The player is currently located on a block."
+        self.interlocutor = random.choice(list(self.location.people_here_now))
+        self.notify()
+
+    # Wrappers
+
     @property
     def i(self):
         """Wrapper for self.interlocutor."""
