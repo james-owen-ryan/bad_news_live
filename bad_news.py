@@ -934,9 +934,8 @@ class Player(object):
             address_number = None
         if self.location.people_here_now:
             if len(self.location.people_here_now) == 1:
-                self.interlocutor = list(self.location.people_here_now)[0]
-                self.all_interlocutors.append(self.interlocutor)
-                self.game.communicator.update_actor_interface()
+                new_interlocutor = list(self.location.people_here_now)[0]
+                self.change_interlocutor(new_interlocutor=new_interlocutor)
                 exposition = "You are approaching {age_and_gender_nominal} with {appearance} [{i}]. {nearby}".format(
                     age_and_gender_nominal=self.interlocutor.age_and_gender_description,
                     appearance=self.interlocutor.basic_appearance_description,
@@ -945,9 +944,8 @@ class Player(object):
                 )
             else:
                 if any(p for p in self.location.people_here_now if p.name == name):
-                    self.interlocutor = next(p for p in self.location.people_here_now if p.name == name)
-                    self.all_interlocutors.append(self.interlocutor)
-                    self.game.communicator.update_actor_interface()
+                    new_interlocutor = next(p for p in self.location.people_here_now if p.name == name)
+                    self.change_interlocutor(new_interlocutor=new_interlocutor)
                     exposition = "You are approaching {age_and_gender_nominal} with {appearance} [{i}]. {nearby}".format(
                         age_and_gender_nominal=self.interlocutor.age_and_gender_description,
                         appearance=self.interlocutor.basic_appearance_description,
@@ -955,11 +953,10 @@ class Player(object):
                         nearby="The following people are still nearby:" if not self.game.offline_mode else ''
                     )
                 elif any(p for p in self.location.people_here_now if p.temp_address_number == address_number):
-                    self.interlocutor = next(
+                    new_interlocutor = next(
                         p for p in self.location.people_here_now if p.temp_address_number == address_number
                     )
-                    self.all_interlocutors.append(self.interlocutor)
-                    self.game.communicator.update_actor_interface()
+                    self.change_interlocutor(new_interlocutor=new_interlocutor)
                     exposition = "You are approaching {age_and_gender_nominal} with {appearance} [{i}]. {nearby}".format(
                         age_and_gender_nominal=self.interlocutor.age_and_gender_description,
                         appearance=self.interlocutor.basic_appearance_description,
@@ -976,10 +973,20 @@ class Player(object):
             self.game.communicator.player_exposition = exposition
             self.game.communicator.update_player_interface()
 
+    def change_interlocutor(self, new_interlocutor):
+        """Change the current interlocutor, which will clear old information from the actor interface."""
+        self.interlocutor = new_interlocutor
+        self.all_interlocutors.append(self.interlocutor)
+        self.game.communicator.matches_overview = ''
+        self.game.communicator.matches_listing = ''
+        self.game.communicator.update_actor_interface()
+
     def end_conversation(self):
         """Set the interlocutor back to None and update the actor interface accordingly."""
         if self.interlocutor:
             self.interlocutor = None
+            self.game.communicator.matches_overview = ''
+            self.game.communicator.matches_listing = ''
             self.game.communicator.update_actor_interface()
 
     def do_you_know(self, features_str=None, narrow=False):
@@ -1247,9 +1254,7 @@ class Player(object):
         """Print exposition surrounding the ringing of a doorbell."""
         answerer = self._determine_who_answers_buzzer_or_doorbell(dwelling_place=self.location)
         if answerer:
-            self.interlocutor = answerer
-            self.all_interlocutors.append(self.interlocutor)
-            self.game.communicator.update_actor_interface()
+            self.change_interlocutor(new_interlocutor=answerer)
         verb_phrase = 'comes to the gate' if self.location.lot.tract else 'answers the door'
         if answerer in self.people_i_know_by_name:
             exposition = '{answerer_name} {answers}.'.format(
@@ -1287,9 +1292,7 @@ class Player(object):
                 dwelling_place=apartment_unit_buzzed
             )
         if answerer:
-            self.interlocutor = answerer
-            self.all_interlocutors.append(self.interlocutor)
-            self.game.communicator.update_actor_interface()
+            self.change_interlocutor(new_interlocutor=answerer)
             exposition = '{} speaks into the intercom.'.format(
                 answerer.age_and_gender_description.capitalize()
             ).capitalize()
