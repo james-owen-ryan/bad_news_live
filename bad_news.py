@@ -1448,3 +1448,6 @@ ta = pc.talk_about
 bar = pc.goto_bar
 speak = bn.communicator.speak_directly_to_player
 pop = pc.pop_back
+def lpush():
+    l()
+    push()
