@@ -1097,6 +1097,7 @@ class Player(object):
     def pop_back(self):
         """Pop back to the last good set of matches after narrowing too far."""
         self.interlocutor.matches = list(self.interlocutor.earlier_matches)
+        self.express_matches()
 
     def ask_to_list(self, start_index=0, n_to_list=None):
         """Ask interlocutor to ask_to_list their potential matches to the player's question."""
@@ -1443,3 +1444,4 @@ l = pc.ask_to_list
 ta = pc.talk_about
 bar = pc.goto_bar
 speak = bn.communicator.speak_directly_to_player
+pop = pc.pop_back

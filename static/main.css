@@ -8,6 +8,7 @@ body {
 	background: #74AFAD;
 	color: #ECECEA;
 	font-family: 'FjordOne', serif;
+	font-size: 12px;
 	
 	/*
 	nice color palette
@@ -18,32 +19,35 @@ body {
 	*/
 }
 
-#headerArea{
-	text-align: center;
-}
-
+/*THE WHOLE SCREEN IS THE MAIN AREA */
 #mainArea{
-	width: 80%;
+	width: 100%;
 	margin: auto;
 }
 
+
+/*THE HEADER CONSISTS OF OUR NAME (whoAmIDiv) AND OTHER, INFO BENEATH IT */
+#whoAmIDiv{
+	font-size: 30px;
+	width: 70%;
+	margin-bottom: 30px;
+	margin: auto;
+	text-align: center;
+	clear: both;
+}
+
+.headerInfo{
+	font-size: 10px;
+}
+/*END HEADER AEA */
+
+
+/*EACH 'BIG BLOCK' (E.G. DESCRIPTION, PERSONAL DETAILS, SUBJCT OF INTEREST) IS A MAIN DIV */
 .mainDiv{
 	border-width: 2px;
 	border-style: solid;
 	float: left;
-	margin-left: 30px;
-	padding: 5px;
-	width: 400px;
-	margin-top: 10px;
-}
-
-#locationDiv{
-	width: 400px;
-}
-
-.innerDiv{
-	border-width: 2px;
-	border-style: dashed;
+	margin-left: 10px;
 	padding: 5px;
 	margin-top: 10px;
 }
@@ -53,33 +57,17 @@ body {
 	font-size: 24px;
 	text-align: center;
 }
+/*END MAIN DIV */
 
-#whoAmIDiv{
-	font-size: 30px;
-	width: 35%;
-	margin-bottom: 30px;
-	margin-left: 25%
-}
-
-#summary{
-	font-size: 36px;
-}
-
-#topAreaDiv{
-	clear: both;
-}
-
-#characterDescriptionArea{
-	clear: both;
-}
-
-#timeAndPlaceInfo{
-	float: right;
-	width: 30%;
-}
-
-#extraInfoDiv{
-	clear: both;
+/*EACH 'FACT' BELONGS IN ITS OWN INNER DIV. */
+.innerDiv{
+	border-width: 1px;
+	border-style: dashed;
+	padding: 2px;
+	margin-top: 5px;
+	padding-left: 5px;
+	margin-left: 5px;
+	float: left;
 }
 
 .topic{
@@ -89,15 +77,46 @@ body {
 
 .dynamicData{
 	color: #8644DF;
-	padding-left: 10px;
+	padding-left: 2px;
+	padding-right: 8px;
+}
+/*END CONTENT OF INNER DIVS */
+
+
+/*THE MAIN DIVS */
+#personalDescription{
+	width: 15%;
 }
 
-.otherCharacterDescription{
-	display: block;
-	padding-left: 10px;
-	font-size: 12px;
-	font-style: italic;
-	color: #4244DF;
+#additionalPersonalDetails{
+	width: 31%;
+}
+
+#subjectOfConversation{
+	width: 45%;
+}
+/*END MAIN DIVS */
+
+
+/*THE FOOTER CONTAINS ALL OF THE PREVIOUS PEOPLE THAT I'VE BEEN */
+#previousPeopleFooter{
+	clear: both;
+	padding-top: 10px;
+	width: 80%;
+	margin: auto;
+	text-align: center;
+}
+
+#previousPeopleTitle{
+	font-size: 20px;
+}
+
+#previousPeopleFooter ul{
+	list-style-type: none;
+}
+
+#previousPeopleFooter li{
+	float: left;
 }
 
 .previousCharacterDescription{
@@ -116,5 +135,8 @@ body {
     -webkit-margin-end: 0px;
     -webkit-padding-start: 30px;
     width: 90%;
+
+/*END FOOTER */
+
 }
 
