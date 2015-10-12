@@ -4,17 +4,36 @@
 	<meta charset="utf-8">
 	<title>Actor Interface // Bad News</title>
 	<link rel="stylesheet" href="main.css">
-
-<script>
-  console.log("Good morning!");
-</script>
-
 </head>
 <body>
-
 <div id="mainArea">
+
+    <div id="whoAmIDiv">
+    	<span id="MyName">
+	        <span class="topic">My Name is:</span>
+	        <span class="dynamicData">{{ communicator.interlocutor_full_name }}</span>
+        </span>
+        <div id="timeAndPlaceInfo" class="headerInfo">
+        	<span class="topic">Town Name:</span>
+            <span class="dynamicData">{{ communicator.city_name }}</span>
+
+            <span class="topic">Current Date:</span>
+            <span class="dynamicData">{{ communicator.current_date }}</span>
+
+            <span class="topic">My Location:</span>
+            <span class="dynamicData">{{ communicator.interlocutor_location_name }}</span>
+
+            <span class="topic">Address Here:</span>
+            <span class="dynamicData">{{ communicator.interlocutor_location_address }}</span>
+        </div>
+    	<div id="targetPerson" class="headerInfo">
+            <span class="topic">Next of Kin:</span>
+            <span class="dynamicData">{{ communicator.next_of_kin_description }}</span>
+		</div>
+    </div>
+
 	<div id="characterDescriptionArea">
-		<div id="description" class="mainDiv">
+		<div id="personalDescription" class="mainDiv">
 			<div class="mainDivTitle">Description</div>
             <div class="innerDiv">
 				<span class="topic">Extroversion:</span>
@@ -76,7 +95,7 @@
 			</div>
 		</div>
 
-		<div id="Other Description" class="mainDiv">
+		<div id="additionalPersonalDetails" class="mainDiv">
 			<div class="mainDivTitle">Other Info</div>
             <div class="innerDiv">
 				<span class="topic">Purpose Here:</span>
@@ -274,44 +293,21 @@
                 </span>
 			</div>
 		</div>
+    </div>
         <div class="mainDiv" id="QueryMatches">
 			<div class="mainDivTitle">Matches</div>
 			<div class="innerDiv">
 				<span id="nMatchesFound" class="dynamicData">{{ communicator.matches_overview }}</span>
 			</div>
+            <br>
 			<div class="innerDiv">
 				<span id="matchesListing" class="dynamicData">{{ communicator.matches_listing }}</span>
 			</div>
 		</div>
-        <div id="whoAmIDiv" class="mainDiv">
-            <span class="topic">My Name is:</span>
-            <span class="dynamicData">{{ communicator.interlocutor_full_name }}</span>
-        </div>
-        <div id="timeAndPlaceInfo" class="mainDiv">
-            <div class="mainDivTitle">Time and Place Info</div>
-            <div id="townNameDiv">
-                <span class="topic">Town Name:</span>
-                <span class="dynamicData">{{ communicator.city_name }}</span>
-            </div>
-            <div id="currentDateDiv">
-                <span class="topic">Current Date:</span>
-                <span class="dynamicData">{{ communicator.current_date }}</span>
-            </div>
-            <div id="currentLocationDiv">
-                <span class="topic">My Location:</span>
-                <span class="dynamicData">{{ communicator.interlocutor_location_name }}</span>
-            </div>
-            <div id="currentAddressDiv">
-                <span class="topic">Address Here:</span>
-                <span class="dynamicData">{{ communicator.interlocutor_location_address }}</span>
-            </div>
-        </div>
 	</div>
 
-	<div id="extraInfoDiv">
-		<div class="mainDiv" id="previousPeople">
-			<div class="mainDivTitle">Previous People I've Been</div>
-			<span id="previousCharacterSpan" class="dynamicData">
+    <div id="previousPeopleFooter">
+		<span id="previousPeopleTitle">Previous People I've Been:</span>
 				<ul id="previousCharacterList" class="dynamicList">
 					<li>
 						<span class="previousCharacterName">{{ communicator.last_interlocutor_name }}</span>
@@ -319,21 +315,13 @@
 					</li>
 					<li>
 						<span class="previousCharacterName">{{ communicator.penultimate_interlocutor_name }}</span>
-						<span class="otherCharacterDescription">{{ communicator.penultimate_interlocutor_description }}</span>
+						<span class="previousCharacterDescription">{{ communicator.penultimate_interlocutor_description }}</span>
 					</li>
 					<li>
 						<span class="previousCharacterName">{{ communicator.antepenultimate_interlocutor_name }}</span>
-						<span class="otherCharacterDescription">{{ communicator.antepenultimate_interlocutor_description }}</span>
+						<span class="previousCharacterDescription">{{ communicator.antepenultimate_interlocutor_description }}</span>
 					</li>
 				</ul>
-			</span>
-		</div>
-		<div class="mainDiv" id="TargetPerson">
-			<div class="mainDivTitle">Next of Kin</div>
-			<div class="innerDiv">
-				<span id="relevantPersonOccupation" class="dynamicData">{{ communicator.next_of_kin_description }}</span>
-			</div>
-		</div>
 	</div>
 
 </div>
