@@ -1121,8 +1121,9 @@ class Player(object):
                 basic_description=self.interlocutor.mind.mental_models[match].basic_description
             )
             self.current_list_index = i
-            self.game.communicator.matches_listing += '{line_break}{basic_description}'.format(
+            self.game.communicator.matches_listing += '{line_break}{nok_marker}{basic_description}'.format(
                 line_break='<br>' if i > 0 else '',
+                nok_marker='!' if match in self.game.next_of_kin else '',
                 basic_description=self.interlocutor.mind.mental_models[match].basic_description
             )
         print '\n'
