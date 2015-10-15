@@ -232,7 +232,6 @@ class Communicator(object):
                     self.interlocutor.occupations[-1].terminus.year
                 )
             return job_status
-
         else:
             return '-'
 
@@ -537,9 +536,11 @@ class Communicator(object):
         if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
             mental_model = self.interlocutor.mind.mental_models[self.player.subject_of_conversation]
             facet = mental_model.occupation.company
+            company_out_of_business = True if (facet and facet.object_itself.out_of_business) else False
             if facet == '':
                 facet = '[forgot]'
-            return "{value} ({confidence})".format(
+            return "{out_of_business_marker}{value} ({confidence})".format(
+                out_of_business_marker='[OOB] ' if company_out_of_business else '',
                 value=facet if facet else '?',
                 confidence='-' if not facet or facet == '[forgot]' else facet.strength_str
             )
