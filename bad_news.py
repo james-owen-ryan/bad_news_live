@@ -186,6 +186,14 @@ class Player(object):
         else:
             features_str = 'ar=elderly'
         # Set physical characteristics
+        broader_skin_color = {
+            'black': 'dark', 'brown': 'dark',
+            'beige': 'light', 'pink': 'light',
+            'white': 'light'
+        }
+        features_str += ',sc={}'.format(
+            broader_skin_color[deceased_character.face.skin.color]
+        )
         if deceased_character.face.distinctive_features.tattoo == 'yes':
             features_str += ',tattoo=yes'
         if deceased_character.face.distinctive_features.scar == 'yes':
@@ -1450,6 +1458,7 @@ ta = pc.talk_about
 bar = pc.goto_bar
 speak = bn.communicator.speak_directly_to_player
 pop = pc.pop_back
+go = pc.go_outside()
 def lpush():
     l()
     push()
