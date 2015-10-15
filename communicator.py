@@ -498,7 +498,7 @@ class Communicator(object):
                     confidence=strength_str
                 )
             else:
-                facet = mental_model.age.approximate_age
+                facet = mental_model.age.approximate
                 if facet == '':
                     facet = '[forgot]'
                 return "{value} ({confidence})".format(
