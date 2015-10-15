@@ -12,6 +12,7 @@ import string
 
 
 NUMERAL_TO_WORD = {
+    0: 'zero',
     1: 'one', 2: 'two', 3: 'three', 4: 'four', 5: 'five',
     6: 'six', 7: 'seven', 8: 'eight', 9: 'nine', 10: 'ten',
     11: 'eleven', 12: 'twelve', 13: 'thirteen', 14: 'fourteen',
@@ -247,7 +248,7 @@ class Player(object):
             lot_i_traveled_to = self.location.lot
             n_blocks_traveled = self.city.distance_between(lot_i_came_from, lot_i_traveled_to)
             distance_traveled = '{n} block{pl}'.format(
-                n=NUMERAL_TO_WORD[n_blocks_traveled],
+                n=NUMERAL_TO_WORD[n_blocks_traveled+1],
                 pl='s' if n_blocks_traveled != 1 else ''
             )
             self.observe(distance_traveled=distance_traveled)
@@ -260,18 +261,18 @@ class Player(object):
             lot_i_traveled_to = self.location.lots[0]
             n_blocks_traveled = self.city.distance_between(lot_i_came_from, lot_i_traveled_to)
             distance_traveled = '{n} block{pl}'.format(
-                n=NUMERAL_TO_WORD[n_blocks_traveled],
+                n=NUMERAL_TO_WORD[n_blocks_traveled+1],
                 pl='s' if n_blocks_traveled != 1 else ''
             )
             if self.game.offline_mode:
                 print "After traveling {} to the {}, you find no building with the house number {}.\n".format(
-                    NUMERAL_TO_WORD[distance_traveled], block_object, house_number
+                    distance_traveled, block_object, house_number
                 )
                 exposition_prefix = None
             else:
                 exposition_prefix = (
                     "After traveling {} to the {}, you find no building with the house number {}.".format(
-                        NUMERAL_TO_WORD[distance_traveled], block_object, house_number
+                        distance_traveled, block_object, house_number
                     )
                 )
             self.goto_block(block=block_object, exposition_prefix=exposition_prefix)
