@@ -239,10 +239,13 @@ class Communicator(object):
     def interlocutor_workplace(self):
         """Return the name of the interlocutor's workplace, if any."""
         if self.interlocutor:
-            workplace = self.interlocutor.get_feature('workplace')
-            if self.interlocutor.occupation:
-                workplace += ' (since {})'.format(self.interlocutor.occupation.start_date)
-            return workplace
+            workplace = None if not self.interlocutor.occupations else self.interlocutor.occupations[-1].company
+            overview = 'None' if not workplace else workplace.name
+            if self.interlocutor.occupation:  # Currently working there
+                overview += ' (since {})'.format(self.interlocutor.occupation.start_date)
+            if workplace and workplace.out_of_business:
+                overview = '[OOB] ' + overview
+            return overview
         else:
             return '-'
 
