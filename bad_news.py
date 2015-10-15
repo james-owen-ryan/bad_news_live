@@ -1411,9 +1411,9 @@ class Player(object):
         """Wrapper for self.subject_of_conversation."""
         return self.subject_of_conversation
 
-    def dyk(self, features_str):
+    def dyk(self, features_str=None):
         """A wrapper around do_you_know()."""
-        self.do_you_know(features_str, narrow=False)
+        self.do_you_know(features_str=features_str, narrow=False)
 
     def atl(self):
         """Wrapper around ask_to_list()."""
