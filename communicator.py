@@ -26,6 +26,8 @@ class Communicator(object):
         # Special text that may be displayed on the actor interface during gameplay
         self.matches_overview = ''  # Matches to a given query, e.g., 'Found 9 matches'
         self.matches_listing = ''  # Listing of individual matches
+        # Special attributes that are set as needed due to computational intensity
+        self.interlocutor_source_distribution = []  # What sources fed interlocutor their info about subject
         # Load templates
         template_loader = jinja2.FileSystemLoader(searchpath="./templates")
         template_env = jinja2.Environment(loader=template_loader)
@@ -73,10 +75,28 @@ class Communicator(object):
             [p for p in self.game.city.residents if
              any(q for q in p.mind.mental_models if q.type == 'person')]
         )
-        self.player.subject_of_conversation = random.choice(
+        subject_of_conversation = random.choice(
             [q for q in self.interlocutor.mind.mental_models if q.type == 'person']
         )
-        self.update_actor_interface()
+        self.player.talk_about(subject_of_conversation)
+
+    def set_sources_of_interlocutor_beliefs_about_subject(self):
+        """Set the top sources of interlocutor's beliefs about the subject of conversation."""
+        all_sources = []
+        all_interlocutor_beliefs_about_subject = [
+            f for f in self.interlocutor.all_belief_facets if
+            f.subject is self.player.subject_of_conversation
+        ]
+        for facet in all_interlocutor_beliefs_about_subject:
+            for piece in facet.evidence:
+                if piece.source:
+                    all_sources.append(piece.source)
+        source_distribution = []
+        for source in set(all_sources):
+            percentage_of_my_beliefs_due_to_them = all_sources.count(source)/float(len(all_sources))
+            source_distribution.append((source, percentage_of_my_beliefs_due_to_them))
+        source_distribution.sort(key=lambda s: s[1], reverse=True)
+        self.interlocutor_source_distribution = source_distribution
 
     @property
     def interlocutor(self):
@@ -987,3 +1007,16 @@ class Communicator(object):
                 current_location=current_location
             )
         return description
+
+    @property
+    def interlocutor_sources_of_knowledge_about_subject(self):
+        """An expression of the interlocutor's sources for the knowledge they have about subject."""
+        str_representation = ''
+        for i in xrange(len(self.interlocutor_source_distribution)):
+            source, percentage = self.interlocutor_source_distribution[i]
+            str_representation += '{comma}{source} ({percentage}%)'.format(
+                comma=', ' if i != 0 else '',
+                source='myself' if source is self.interlocutor else source.name,
+                percentage=int(round(percentage*100))
+            )
+        return str_representation

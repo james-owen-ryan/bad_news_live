@@ -1154,11 +1154,13 @@ class Player(object):
             # If a person object was passed, just make them the subject of conversation
             if type(subject_reference).__name__ in ('Person', 'PersonExNihilo'):
                 self.subject_of_conversation = subject_reference
+                self.game.communicator.set_sources_of_interlocutor_beliefs_about_subject()
             else:
                 # A temp address number was passed, i.e., the conventional usage of this method
                 self.subject_of_conversation = next(
                     p for p in self.interlocutor.matches if p.temp_address_number == subject_reference
                 )
+                self.game.communicator.set_sources_of_interlocutor_beliefs_about_subject()
             if not self.game.offline_mode:
                 self.game.communicator.update_actor_interface()
                 # self.interlocutor.mind.mental_models[self.subject_of_conversation].outline()
@@ -1173,10 +1175,12 @@ class Player(object):
         """Change the subject of conversation to the hinge between interlocutor and the current subject."""
         if address_number is None:
             self.subject_of_conversation = self.interlocutor.hinges[0]
+            self.game.communicator.set_sources_of_interlocutor_beliefs_about_subject()
         else:
             self.subject_of_conversation = next(
                 p for p in self.interlocutor.hinges if p.temp_address_number == address_number
             )
+            self.game.communicator.set_sources_of_interlocutor_beliefs_about_subject()
         if not self.game.offline_mode:
             self.game.communicator.update_actor_interface()
             # self.interlocutor.mind.mental_models[self.subject_of_conversation].outline()
