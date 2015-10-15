@@ -774,6 +774,8 @@ class Communicator(object):
                     for p in parents
                 )
                 return names_str
+            else:
+                return '?'
         return ''
 
     @property
@@ -798,6 +800,8 @@ class Communicator(object):
                     for k in kids
                 )
                 return names_str
+            else:
+                return '?'
         return ''
 
     @property
@@ -822,6 +826,8 @@ class Communicator(object):
                     for s in siblings
                 )
                 return names_str
+            else:
+                return '?'
         return ''
 
     @property
@@ -854,6 +860,8 @@ class Communicator(object):
                     for ef in known_extended_family
                 )
                 return names_str
+            else:
+                return '?'
         return ''
 
     @property
