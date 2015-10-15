@@ -489,32 +489,27 @@ class Communicator(object):
             return ''
 
     @property
-    def interlocutor_knowledge_of_subject_job_status(self):
+    def interlocutor_knowledge_of_subject_job_status_and_title(self):
         """Return the interlocutor's conception of the subject of conversation's job status."""
         if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
             mental_model = self.interlocutor.mind.mental_models[self.player.subject_of_conversation]
-            facet = mental_model.occupation.status
-            if facet == '':
-                facet = '[forgot]'
-            return "{value} ({confidence})".format(
-                value=facet if facet else '?',
-                confidence='-' if not facet or facet == '[forgot]' else facet.strength_str
+            # Job status
+            status_facet = mental_model.occupation.status
+            if status_facet == '':
+                status_facet = '[forgot status]'
+            status_component = "{value} ({confidence})".format(
+                value=status_facet if status_facet else '?',
+                confidence='-' if not status_facet or status_facet == '[forgot]' else status_facet.strength_str
             )
-        else:
-            return ''
-
-    @property
-    def interlocutor_knowledge_of_subject_job_title(self):
-        """Return the interlocutor's conception of the subject of conversation's job title."""
-        if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
-            mental_model = self.interlocutor.mind.mental_models[self.player.subject_of_conversation]
-            facet = mental_model.occupation.job_title
-            if facet == '':
-                facet = '[forgot]'
-            return "{value} ({confidence})".format(
-                value=facet if facet else '?',
-                confidence='-' if not facet or facet == '[forgot]' else facet.strength_str
+            # Job title
+            title_facet = mental_model.occupation.job_title
+            if title_facet == '':
+                title_facet = '[forgot title]'
+            title_component = "{value} ({confidence})".format(
+                value=title_facet if title_facet else '?',
+                confidence='-' if not title_facet or title_facet == '[forgot]' else title_facet.strength_str
             )
+            return '{} {}'.format(status_component, title_component)
         else:
             return ''
 
