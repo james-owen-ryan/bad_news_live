@@ -597,6 +597,21 @@ class Communicator(object):
             return ''
 
     @property
+    def interlocutor_knowledge_of_subject_facial_hair(self):
+        """Return the interlocutor's conception of the subject of conversation's facial hair style, if any."""
+        if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
+            mental_model = self.interlocutor.mind.mental_models[self.player.subject_of_conversation]
+            facet = mental_model.face.facial_hair.style
+            if facet == '':
+                facet = '[forgot]'
+            return "{value} ({confidence})".format(
+                value=facet if facet else '?',
+                confidence='-' if not facet or facet == '[forgot]' else facet.strength_str
+            )
+        else:
+            return ''
+
+    @property
     def interlocutor_knowledge_of_subject_tattoo(self):
         """Return the interlocutor's conception of the subject of conversation's tattoo, if any."""
         if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
