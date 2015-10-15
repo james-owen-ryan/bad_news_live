@@ -489,6 +489,21 @@ class Communicator(object):
             return ''
 
     @property
+    def interlocutor_knowledge_of_subject_home_address(self):
+        """Return the interlocutor's conception of the subject of conversation's home address."""
+        if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
+            mental_model = self.interlocutor.mind.mental_models[self.player.subject_of_conversation]
+            facet = mental_model.home.mental_model.address
+            if facet == '':
+                facet = '[forgot]'
+            return "{value} ({confidence})".format(
+                value=facet if facet else '?',
+                confidence='-' if not facet or facet == '[forgot]' else facet.strength_str
+            )
+        else:
+            return ''
+
+    @property
     def interlocutor_knowledge_of_subject_job_status_and_title(self):
         """Return the interlocutor's conception of the subject of conversation's job status."""
         if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
