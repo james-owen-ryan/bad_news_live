@@ -574,7 +574,10 @@ class Communicator(object):
         if self.player.subject_of_conversation in self.interlocutor.mind.mental_models:
             mental_model = self.interlocutor.mind.mental_models[self.player.subject_of_conversation]
             facet = mental_model.occupation.company
-            company_out_of_business = True if (facet and facet.object_itself.out_of_business) else False
+            if facet and facet.object_itself and facet.object_itself.out_of_business:
+                company_out_of_business = True
+            else:
+                company_out_of_business = False
             if facet == '':
                 facet = '[forgot]'
             return "{out_of_business_marker}{value} ({confidence})".format(
