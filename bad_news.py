@@ -227,7 +227,7 @@ class Player(object):
         block = self.location if self.location.type == 'block' else self.location.block
         return [b for b in self.city.buildings if b.block is block]
 
-    def goto(self, address=None):
+    def goto(self, address=None, suppress_observation=False):
         """Move the player to a location with the given address.
 
         If no location exists at this address, move them simply to the associated block.
@@ -259,7 +259,9 @@ class Player(object):
                 n=NUMERAL_TO_WORD[n_blocks_traveled+1],
                 pl='s' if n_blocks_traveled != 1 else ''
             )
-            self.observe(distance_traveled=distance_traveled)
+            if not suppress_observation:
+
+                self.observe(distance_traveled=distance_traveled)
         except StopIteration:
             # Arrive then at that block
             house_number = int(address[:3])
@@ -368,6 +370,27 @@ class Player(object):
         # usually this will co-occur with a command to move locations
         self.end_conversation()
         self.goto(self.places_i_have_been[-2].address)
+
+    def go_knock(self, address):
+        """A method that chains goto() and knock()."""
+        self.goto(address=address, suppress_observation=True)
+        self.game.communicator.player_exposition_enumeration = ''
+        self.knock()
+
+    def go_enter(self, address):
+        """A method that chains goto() and enter()."""
+        self.goto(address=address, suppress_observation=True)
+        self.enter()
+
+    def go_outside(self):
+        """Go into the street and the observe the block you are on."""
+        # Since this method is called when a player's location changes, it also
+        # makes sense to end the character's current conversation, if any, because
+        # usually this will co-occur with a command to move locations
+        self.end_conversation()
+        self.outside = True
+        self.location = self.location.block
+        self.observe()
 
     def move(self, direction):
         """Move to an adjacent block."""
@@ -497,16 +520,6 @@ class Player(object):
         # usually this will co-occur with a command to move locations
         self.end_conversation()
         self.outside = True
-        self.observe()
-
-    def go_outside(self):
-        """Go into the street and the observe the block you are on."""
-        # Since this method is called when a player's location changes, it also
-        # makes sense to end the character's current conversation, if any, because
-        # usually this will co-occur with a command to move locations
-        self.end_conversation()
-        self.outside = True
-        self.location = self.location.block
         self.observe()
 
     def observe(self, exposition_prefix=None, update_enumeration_only=False, distance_traveled=None):
@@ -1462,7 +1475,10 @@ ta = pc.talk_about
 bar = pc.goto_bar
 speak = bn.communicator.speak_directly_to_player
 pop = pc.pop_back
-go = pc.go_outside()
+go = pc.go_outside
+gk = pc.go_knock
+comm = bn.communicator
+ce = bn.communicator.set_player_interface_enumeration_text
 def lpush():
     l()
     push()
