@@ -98,7 +98,7 @@ class Communicator(object):
         source_distribution.sort(key=lambda s: s[1], reverse=True)
         self.interlocutor_source_distribution = source_distribution
 
-    def ce(self, new_enumeration):
+    def set_player_interface_enumeration_text(self, new_enumeration):
         """Convenience method to change the player-exposition enumeration during an emergency."""
         self.player_exposition_enumeration = new_enumeration
         self.update_player_interface()
