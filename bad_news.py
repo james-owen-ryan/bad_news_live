@@ -72,7 +72,11 @@ class Game(object):
             p.friends and
             p.greatgrandparents | p.grandparents | p.aunts | p.uncles | p.nieces | p.nephews | p.cousins
         ]
-        return random.choice(potential_selections)
+        deceased_character = max(potential_selections, key=lambda character: len(
+            [r for r in self.city.residents if character in r.mind.mental_models]
+        )
+        )
+        return deceased_character
 
     def _simulate_the_death(self):
         """Simulate the death of the deceased character without actually killing them."""
