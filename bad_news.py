@@ -1481,6 +1481,7 @@ speak = bn.communicator.speak_directly_to_player
 pop = pc.pop_back
 go = pc.go_outside
 gk = pc.go_knock
+ge = pc.go_enter
 comm = bn.communicator
 ce = bn.communicator.set_player_interface_enumeration_text
 def lpush():
