@@ -393,7 +393,10 @@ class Player(object):
         # usually this will co-occur with a command to move locations
         self.end_conversation()
         self.outside = True
-        self.location = self.location.block
+        if self.location.__class__.__name__ == 'Apartment':
+            self.location = self.location.complex  # Go outside to the intercom system
+        else:
+            self.location = self.location.block
         self.observe()
 
     def move(self, direction):
@@ -774,6 +777,30 @@ class Player(object):
             tab=tab
         )
         return intercom_description
+
+    def view_city_directory(self):
+        """View the city's business directory, which is a listing of businesses and their addresses."""
+        self.game.communicator.player_exposition = (
+            "You are viewing the {city_name} business directory.".format(
+                city_name=self.game.city.name
+            )
+        )
+        self.game.communicator.player_exposition_enumeration = self._compile_city_business_directory()
+        self.game.communicator.update_player_interface()
+
+    def _compile_city_business_directory(self):
+        """Compile the city's business directory, which is a listing of businesses and their addresses."""
+        line_prefix = '\n\t' if self.game.offline_mode else '<br><b>'
+        tab = '\t' if self.game.offline_mode else '</b><br>'
+        business_directory = ""
+        for business in sorted(self.city.companies, key=lambda c: c.name):
+            business_directory += '{line_prefix}{business_name}{tab}{address}'.format(
+                line_prefix=line_prefix,
+                business_name=business.name,
+                tab=tab,
+                address=business.address,
+            )
+        return business_directory
 
     def _describe_business_exterior(self, distance_traveled=None):
         """Describe the business a player is outside of."""
@@ -1484,6 +1511,7 @@ gk = pc.go_knock
 ge = pc.go_enter
 comm = bn.communicator
 ce = bn.communicator.set_player_interface_enumeration_text
+cd = pc.view_city_directory
 def lpush():
     l()
     push()
