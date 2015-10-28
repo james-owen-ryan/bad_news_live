@@ -768,6 +768,7 @@ class Communicator(object):
                 p for p in self.player.subject_of_conversation.parents if
                 p in self.interlocutor.mind.mental_models
             ]
+            parents.sort(key=lambda p: p.present, reverse=True)
             if parents:
                 names_str = ', '.join(
                     '{}{} {} ({})'.format(
@@ -794,6 +795,7 @@ class Communicator(object):
                 k for k in self.player.subject_of_conversation.kids if
                 k in self.interlocutor.mind.mental_models
             ]
+            kids.sort(key=lambda p: p.present, reverse=True)
             if kids:
                 names_str = ', '.join(
                     '{}{} {} ({})'.format(
@@ -820,6 +822,7 @@ class Communicator(object):
                 s for s in self.player.subject_of_conversation.siblings if
                 s in self.interlocutor.mind.mental_models
             ]
+            siblings.sort(key=lambda p: p.present, reverse=True)
             if siblings:
                 names_str = ', '.join(
                     '{}{} {} ({})'.format(
@@ -853,6 +856,8 @@ class Communicator(object):
                 ef in self.interlocutor.mind.mental_models and
                 ef not in self.player.subject_of_conversation.immediate_family
             ]
+            # Sort so people still in town show up first
+            known_extended_family.sort(key=lambda p: p.present, reverse=True)
             if known_extended_family:
                 names_str = ', '.join(
                     '{}{} {} ({}; {})'.format(
