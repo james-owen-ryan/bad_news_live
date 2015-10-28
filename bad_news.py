@@ -474,7 +474,7 @@ class Player(object):
         """Enter a building."""
         if not house_number:
             # Then attempt to enter the building you are outside of
-            if not self.location.locked or let_in:
+            if not self.location.locked or let_in or self.location is self.game.deceased_character.location:
                 self.outside = False
                 self.observe()
             else:
@@ -489,7 +489,7 @@ class Player(object):
                 self.location = self.location.block
             building_to_approach = next(b for b in self.location.buildings if b.house_number == house_number)
             self.location = building_to_approach
-            if not self.location.locked or let_in:
+            if not self.location.locked or let_in or self.location is self.game.deceased_character.location:
                 self.outside = False
                 self.observe()
             else:
@@ -500,11 +500,11 @@ class Player(object):
                     self.game.communicator.player_exposition = exposition
                     self.game.communicator.update_player_interface()
 
-    def enter_apt(self, unit_number=None):
+    def enter_apt(self, unit_number=None, let_in=False):
         """Enter a building."""
         if not unit_number:
             # Then attempt to enter the apartment unit you are standing outside of
-            if not self.location.locked:
+            if not self.location.locked or let_in or self.location is self.game.deceased_character.location:
                 self.outside = False
                 self.observe()
             else:
@@ -514,7 +514,7 @@ class Player(object):
                 self.location = self.location.complex
             apartment_unit_to_approach = next(a for a in self.location.units if a.unit_number == unit_number)
             self.location = apartment_unit_to_approach
-            if not self.location.locked:
+            if not self.location.locked or let_in or self.location is self.game.deceased_character.location:
                 self.outside = False
                 self.observe()
             else:
@@ -670,7 +670,19 @@ class Player(object):
             noise_of_activity_inside = "a faint noise inside"
         else:
             noise_of_activity_inside = "nothing inside"
-        if self.game.sim.time_of_day == "night":
+        if self.location is self.game.deceased_character.location:
+            # Special exposition if it's the deceased character's house
+            exposition = (
+                "{intro} the doorstep of the deceased person's house at {address}. "
+                "{lights_segment_if_night}ts door is unlocked, and you hear nothing inside.".format(
+                    intro="You are at" if not distance_traveled else "You traveled {} to".format(
+                        distance_traveled
+                    ),
+                    address=self.location.address,
+                    lights_segment_if_night="Its lights are off, i" if self.game.sim.time_of_day == 'night' else 'I',
+                )
+            )
+        elif self.game.sim.time_of_day == "night":
             exposition = (
                 "{intro} the doorstep of {whose_house} at {address}. "
                 "Its lights are {lights_on}, its door is {door_locked}, and you hear {noise_of_activity_inside}.".format(
@@ -706,6 +718,10 @@ class Player(object):
                 person_i_know_lives_here=self.salient_person_who_lives_in_a_house[self.location].name,
                 unit_number=self.location.unit_number
             )
+        elif self.location is self.game.deceased_character.location:
+            whose_apartment = "the deceased person's apartment, unit #{unit_number}".format(
+                unit_number=self.location.unit_number
+            )
         else:
             whose_apartment = "unit #{unit_number}".format(unit_number=self.location.unit_number)
         if len(self.location.people_here_now) > 3:
@@ -718,16 +734,26 @@ class Player(object):
             conjunction = ', but'
         else:
             conjunction = ' and'
-        exposition = (
-            "You are in a hallway standing outside the door of {whose_apartment} of {apartment_complex}. "
-            "Its door is {door_locked}{conjunction} you hear {noise_of_activity_inside}.".format(
-                whose_apartment=whose_apartment,
-                apartment_complex=self.location.complex.name,
-                door_locked="locked" if self.location.locked else "unlocked",
-                conjunction=conjunction,
-                noise_of_activity_inside=noise_of_activity_inside
+        if self.location is self.game.deceased_character.location:
+            # Special exposition if it's the deceased character's house
+            exposition = (
+                "You are in a hallway standing outside {whose_apartment} of {apartment_complex}. "
+                "Its door is unlocked and you hear nothing inside.".format(
+                    whose_apartment=whose_apartment,
+                    apartment_complex=self.location.complex.name,
+                )
             )
-        )
+        else:
+            exposition = (
+                "You are in a hallway standing outside the door of {whose_apartment} of {apartment_complex}. "
+                "Its door is {door_locked}{conjunction} you hear {noise_of_activity_inside}.".format(
+                    whose_apartment=whose_apartment,
+                    apartment_complex=self.location.complex.name,
+                    door_locked="locked" if self.location.locked else "unlocked",
+                    conjunction=conjunction,
+                    noise_of_activity_inside=noise_of_activity_inside
+                )
+            )
         return exposition
 
     def _describe_apartment_complex_exterior(self, distance_traveled=None):
