@@ -1032,12 +1032,14 @@ class Player(object):
         self.all_interlocutors.append(self.interlocutor)
         self.game.communicator.matches_overview = ''
         self.game.communicator.matches_listing = ''
+        self.game.communicator.set_sources_of_interlocutor_beliefs_about_subject()
         self.game.communicator.update_actor_interface()
 
     def end_conversation(self):
         """Set the interlocutor back to None and update the actor interface accordingly."""
         if self.interlocutor:
             self.interlocutor = None
+            self.game.communicator.interlocutor_source_distribution = []
             self.game.communicator.matches_overview = ''
             self.game.communicator.matches_listing = ''
             self.game.communicator.update_actor_interface()
