@@ -261,7 +261,7 @@ class Player(object):
             n_blocks_traveled = self.city.distance_between(lot_i_came_from, lot_i_traveled_to)
             distance_traveled = '{n} block{pl}'.format(
                 n=NUMERAL_TO_WORD[n_blocks_traveled+1],
-                pl='s' if n_blocks_traveled != 1 else ''
+                pl='s' if n_blocks_traveled+1 != 1 else ''
             )
             if not suppress_observation:
 
@@ -276,7 +276,7 @@ class Player(object):
             n_blocks_traveled = self.city.distance_between(lot_i_came_from, lot_i_traveled_to)
             distance_traveled = '{n} block{pl}'.format(
                 n=NUMERAL_TO_WORD[n_blocks_traveled+1],
-                pl='s' if n_blocks_traveled != 1 else ''
+                pl='s' if n_blocks_traveled+1 != 1 else ''
             )
             if self.game.offline_mode:
                 print "After traveling {} to the {}, you find no building with the house number {}.\n".format(
