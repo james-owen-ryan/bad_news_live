@@ -624,7 +624,10 @@ class Player(object):
                 )
             elif building.__class__.__name__ == 'House':
                 if self.game.sim.time_of_day == 'night':
-                    lights_on = ' with its lights on' if building.people_here_now else ' with its lights off'
+                    lights_on = (
+                        ' with its lights on' if building.people_here_now or
+                        building is self.game.deceased_character.home else ' with its lights off'
+                    )
                 else:
                     lights_on = ''
                 if building in self.houses_i_know_by_name:
@@ -878,7 +881,9 @@ class Player(object):
             house_noun_phrase = "a {house_or_apartment}".format(
                 house_or_apartment="home" if self.location.house else "apartment"
             )
-        if len(self.location.people_here_now) > 14:
+        if self.location is self.game.deceased_character.location:
+            people_here_intro = "The deceased person remains here:"
+        elif len(self.location.people_here_now) > 14:
             people_here_intro = "There are very many people here:".format(
                 len(self.location.people_here_now)
             )
@@ -909,6 +914,8 @@ class Player(object):
         tab = '\t' if self.game.offline_mode else '</b><br>'
         people_present_description = ""
         people_here_now = list(self.location.people_here_now)
+        if self.location is self.game.deceased_character.location:
+            people_here_now = [self.game.deceased_character]
         for i in xrange(len(people_here_now)):
             person = people_here_now[i]
             person.temp_address_number = i
