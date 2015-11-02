@@ -625,8 +625,9 @@ class Player(object):
             elif building.__class__.__name__ == 'House':
                 if self.game.sim.time_of_day == 'night':
                     lights_on = (
-                        ' with its lights on' if building.people_here_now or
-                        building is self.game.deceased_character.home else ' with its lights off'
+                        ' with its lights on' if
+                        (building.people_here_now and building is not self.game.deceased_character.home)
+                        else ' with its lights off'
                     )
                 else:
                     lights_on = ''
@@ -1346,6 +1347,8 @@ class Player(object):
     def ring(self):
         """Print exposition surrounding the ringing of a doorbell."""
         answerer = self._determine_who_answers_buzzer_or_doorbell(dwelling_place=self.location)
+        if answerer is self.game.deceased_character:
+            answerer = None
         if answerer:
             self.change_interlocutor(new_interlocutor=answerer)
         verb_phrase = 'comes to the gate' if self.location.lot.tract else 'answers the door'
@@ -1384,6 +1387,8 @@ class Player(object):
             answerer = self._determine_who_answers_buzzer_or_doorbell(
                 dwelling_place=apartment_unit_buzzed
             )
+        if answerer is self.game.deceased_character:
+            answerer = None
         if answerer:
             self.change_interlocutor(new_interlocutor=answerer)
             exposition = '{} speaks into the intercom.'.format(
