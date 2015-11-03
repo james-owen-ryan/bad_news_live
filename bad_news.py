@@ -42,12 +42,11 @@ class Game(object):
         self.player = Player(game=self)
         self.player.location = self.deceased_character.location
         # A communicator facilitates communication between the simulation and various game interfaces
-        if not offline_mode:
-            self.communicator = Communicator(game=self)
-        else:
+        if offline_mode:
             self.communicator = None
-        self._compose_opening_exposition()
-        self._simulate_the_death()  # Called after the opening exposition is composed because of ' (deceased)' modifier
+        else:
+            self.communicator = Communicator(game=self)
+        self._simulate_the_death()
         self._init_set_up_helper_attributes()
 
     def _init_set_up_helper_attributes(self):
@@ -107,6 +106,13 @@ class Game(object):
         ):
             return [ef for ef in self.deceased_character.extended_family if ef.present]
 
+    def begin(self):
+        """Prepare the opening exposition and start rendering the player and actor interfaces."""
+        self._compose_opening_exposition()
+        if not offline_mode:
+            self.communicator.update_player_interface()
+            self.communicator.update_actor_interface()
+
     def _compose_opening_exposition(self):
         """Render the initial exposition that opens the game."""
         opening_exposition = (
@@ -121,7 +127,7 @@ class Game(object):
                 city_name=self.city.name,
                 city_pop=self.city.population,
                 pronoun=self.deceased_character.pronoun.capitalize(),
-                description=self.deceased_character.description,
+                description=self.deceased_character.description[:-11],  # Excise ' (deceased)' modifier
                 possessive=self.deceased_character.possessive
             )
         )
@@ -132,15 +138,11 @@ class Game(object):
             # 'begin()' is called -- otherwise, we could screw up the interface
             # of a game already in progress while this sim is being prepared
             self.communicator.player_exposition = opening_exposition
+            self.communicator.player_exposition_enumeration = ''
 
     def advance_timestep(self):
         """Advance to the next timestep."""
         self.sim.enact_no_fi_simulation()
-
-    def begin(self):
-        """Start rendering the player and actor interfaces."""
-        self.communicator.update_player_interface()
-        self.communicator.update_actor_interface()
 
 
 class Player(object):
@@ -808,7 +810,7 @@ class Player(object):
         )
         return intercom_description
 
-    def view_city_directory(self):
+    def view_business_directory(self):
         """View the city's business directory, which is a listing of businesses and their addresses."""
         self.game.communicator.player_exposition = (
             "You are viewing the {city_name} business directory.".format(
@@ -831,6 +833,31 @@ class Player(object):
                 address=business.address,
             )
         return business_directory
+
+    def view_residential_directory(self):
+        """View the city's residential directory, which is a listing of residents and their addresses."""
+        self.game.communicator.player_exposition = (
+            "You are viewing the {city_name} residential directory.".format(
+                city_name=self.game.city.name
+            )
+        )
+        self.game.communicator.player_exposition_enumeration = self._compile_city_residential_directory()
+        self.game.communicator.update_player_interface()
+
+    def _compile_city_residential_directory(self):
+        """Compile the city's residential directory, which is a listing of residents and their addresses."""
+        line_prefix = '\n\t' if self.game.offline_mode else '<br><b>'
+        tab = '\t' if self.game.offline_mode else '</b><br>'
+        residential_directory = ""
+        for home in sorted(self.city.dwelling_places, key=lambda c: c.name):
+            if home.residents:
+                residential_directory += '{line_prefix}{residence_name}{tab}{address}'.format(
+                    line_prefix=line_prefix,
+                    residence_name=home.name[:-10],  # Excise ' residence', which is redundant here
+                    tab=tab,
+                    address=home.address,
+                )
+        return residential_directory
 
     def _describe_business_exterior(self, distance_traveled=None):
         """Describe the business a player is outside of."""
@@ -1551,7 +1578,8 @@ gk = pc.go_knock
 ge = pc.go_enter
 comm = bn.communicator
 ce = bn.communicator.set_player_interface_enumeration_text
-cd = pc.view_city_directory
+bd = pc.view_business_directory
+rd = pc.view_residential_directory
 def lpush():
     l()
     push()
