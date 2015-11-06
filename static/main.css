@@ -59,7 +59,7 @@ body {
 }
 /*END MAIN DIV */
 
-/*EACH 'FACET' BELONGS IN ITS OWN INNER DIV. */
+/*EACH 'FACT' BELONGS IN ITS OWN INNER DIV. */
 .innerDiv{
 	border-width: 1px;
 	border-style: dashed;
@@ -85,7 +85,7 @@ body {
 
 /*THE MAIN DIVS */
 #personalDescription{
-	width: 15%;
+	width: 32%;
 }
 
 #additionalPersonalDetails{
@@ -93,8 +93,13 @@ body {
 }
 
 #subjectOfConversation{
-	width: 45%;
+	width: 38%;
 }
+
+#QueryMatches{
+	width: 15%;
+}
+
 /*END MAIN DIVS */
 
 
@@ -139,4 +144,3 @@ body {
 /*END FOOTER */
 
 }
-
