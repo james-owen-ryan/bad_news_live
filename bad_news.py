@@ -4,6 +4,7 @@ PATH_TO_ANYTOWN = '../anytown'
 sys.path.append(PATH_TO_ANYTOWN)
 
 from game import Game as Sim
+from conversation import *
 from communicator import Communicator
 import random
 import string
@@ -51,7 +52,7 @@ class Game(object):
 
     def _init_set_up_helper_attributes(self):
         """Set all helper attributes that pertain solely to this gameplay experience."""
-        for person in self.city.residents|self.city.departed|self.city.deceased:
+        for person in self.city.residents | self.city.departed | self.city.deceased:
             person.temp_address_number = -1
             person.matches = [p for p in person.mind.mental_models if p.type == "person"]  # Matches to a mind query
             person.earlier_matches = []  # Allows going back to the last good set of matches after narrowing too far
@@ -119,16 +120,20 @@ class Game(object):
             "It is {nighttime_or_daytime}, {date}. You are alone in {a_house_or_apartment} at {address} "
             "in the town of {city_name}, pop. {city_pop}. A deceased person lies before you. "
             "{pronoun} is {description}. You must locate {possessive} next of kin and inform "
-            "that person of this death.".format(
+            "that person of this death.<br><br>"
+            "This interface will be used to display information about your current environment; it is "
+            "not interactive.<br><br>"
+            "To submit a command, such as going outside or traveling to a given address, simply "
+            'speak the command aloud. Your reference sheet has a list of viable commands.'.format(
                 nighttime_or_daytime='nighttime' if self.sim.time_of_day == 'night' else 'daytime',
                 date=self.sim.date[7:] if self.sim.time_of_day == 'day' else self.sim.date[9:],
                 a_house_or_apartment="a house" if self.player.location.house else "an apartment",
                 address=self.player.location.address,
                 city_name=self.city.name,
                 city_pop=self.city.population,
-                pronoun=self.deceased_character.pronoun.capitalize(),
+                pronoun=self.deceased_character.subject_pronoun.capitalize(),
                 description=self.deceased_character.description[:-11],  # Excise ' (deceased)' modifier
-                possessive=self.deceased_character.possessive
+                possessive=self.deceased_character.possessive_pronoun
             )
         )
         if self.offline_mode:
@@ -143,6 +148,16 @@ class Game(object):
     def advance_timestep(self):
         """Advance to the next timestep."""
         self.sim.enact_no_fi_simulation()
+
+    def epilogue(self):
+        """Simulate the game world until 2010."""
+        # Actually model the death
+        self.city.residents.add(self.deceased_character)
+        self.deceased_character.alive = True
+        self.deceased_character.die('Unknown circumstances')
+        while self.sim.year < 2010:
+            self.sim.enact_lo_fi_simulation(5)
+
 
 
 class Player(object):
@@ -1050,7 +1065,7 @@ class Player(object):
             if len(self.location.people_here_now) == 1:
                 new_interlocutor = list(self.location.people_here_now)[0]
                 self.change_interlocutor(new_interlocutor=new_interlocutor)
-                exposition = "You are approaching {age_and_gender_nominal} with {appearance} [{i}]. {nearby}".format(
+                exposition = "You are about to speak to {age_and_gender_nominal} with {appearance} [{i}]. {nearby}".format(
                     age_and_gender_nominal=self.interlocutor.age_and_gender_description,
                     appearance=self.interlocutor.basic_appearance_description,
                     i='<b>{}</b>'.format(self.interlocutor.temp_address_number),
@@ -1060,7 +1075,7 @@ class Player(object):
                 if any(p for p in self.location.people_here_now if p.name == name):
                     new_interlocutor = next(p for p in self.location.people_here_now if p.name == name)
                     self.change_interlocutor(new_interlocutor=new_interlocutor)
-                    exposition = "You are approaching {age_and_gender_nominal} with {appearance} [{i}]. {nearby}".format(
+                    exposition = "You are about to speak to {age_and_gender_nominal} with {appearance} [{i}]. {nearby}".format(
                         age_and_gender_nominal=self.interlocutor.age_and_gender_description,
                         appearance=self.interlocutor.basic_appearance_description,
                         i='<b>{}</b>'.format(self.interlocutor.temp_address_number),
@@ -1071,7 +1086,7 @@ class Player(object):
                         p for p in self.location.people_here_now if p.temp_address_number == address_number
                     )
                     self.change_interlocutor(new_interlocutor=new_interlocutor)
-                    exposition = "You are approaching {age_and_gender_nominal} with {appearance} [{i}]. {nearby}".format(
+                    exposition = "You are about to speak to {age_and_gender_nominal} with {appearance} [{i}]. {nearby}".format(
                         age_and_gender_nominal=self.interlocutor.age_and_gender_description,
                         appearance=self.interlocutor.basic_appearance_description,
                         i='<b>{}</b>'.format(self.interlocutor.temp_address_number),
@@ -1418,12 +1433,12 @@ class Player(object):
             answerer = None
         if answerer:
             self.change_interlocutor(new_interlocutor=answerer)
-            exposition = '{} speaks into the intercom.'.format(
-                answerer.age_and_gender_description.capitalize()
-            ).capitalize()
+            exposition = 'You have buzzed Unit #{}. {} speaks into the intercom.'.format(
+                unit_number, answerer.age_and_gender_description.capitalize()
+            )
         else:
             self.interlocutor = None
-            exposition = 'No one answers.'
+            exposition = 'You have buzzed Unit #{}. No one answers.'.format(unit_number)
         if self.game.offline_mode:
             print '\n{exposition}\n'.format(exposition=exposition)
         else:
@@ -1487,15 +1502,18 @@ class Player(object):
     def wait(self):
         """Wait here until the next timestep."""
         self.game.advance_timestep()
-        self.observe()
+        self.game.communicator.speak_directly_to_player(
+            "It is now {time_of_day}time.".format(time_of_day=self.game.sim.time_of_day)
+        )
+        # self.observe()
 
     def notify(self):
         """Notify interlocutor that the deceased person has died."""
         # Determine whether the notified person was a next of kin
         if self.interlocutor in self.game.next_of_kin:
-            verdict = "You have successfully notified the next of kin. You have delivered the bad news. You win!"
+            verdict = "You have successfully notified the next of kin. You have delivered the bad news."
         else:
-            verdict = "You have notified the wrong person. You lose."
+            verdict = "You have notified the wrong person."
         # Express this outcome to the player
         if self.game.offline_mode:
             print verdict
@@ -1580,6 +1598,64 @@ comm = bn.communicator
 ce = bn.communicator.set_player_interface_enumeration_text
 bd = pc.view_business_directory
 rd = pc.view_residential_directory
+out = pc.go_outside
+epilogue = bn.epilogue
 def lpush():
     l()
     push()
+
+
+# DEBUGGING/TESTING STUFF BELOW
+
+# import itertools
+# SPEAKER_TUPLES_ALREADY_USED = set()
+# def attempt_to_start_conversation(conversants_pool):
+#     all_possible_pairings = list(itertools.permutations(conversants_pool, 2))
+#     random.shuffle(all_possible_pairings)
+#     for initiator, recipient in all_possible_pairings:
+#         constraints = [
+#             initiator is not recipient,
+#             initiator.age > 5 and recipient.age > 5,
+#             (initiator, recipient) not in SPEAKER_TUPLES_ALREADY_USED,
+#             (recipient, initiator) not in SPEAKER_TUPLES_ALREADY_USED,
+#             recipient not in initiator.relationships,
+#             # initiator.accurate_belief(recipient, 'first name')
+#             ((initiator.occupation and not initiator.routine.working) or
+#               (recipient.occupation and not recipient.routine.working)),
+#             not initiator.belief(recipient, 'workplace')
+#         ]
+#         if all(constraint is True for constraint in constraints):
+#             SPEAKER_TUPLES_ALREADY_USED.add((initiator, recipient))
+#             return Conversation(initiator, recipient, debug=False)
+#     raise StopIteration
+# def convo():
+#     for tavern in g.city.businesses_of_type('Tavern'):
+#         try:
+#             return attempt_to_start_conversation(tavern.people_here_now)
+#         except StopIteration:
+#             pass
+#     for business in g.city.companies:
+#         try:
+#             return attempt_to_start_conversation(business.people_here_now)
+#         except StopIteration:
+#             pass
+#     for home in g.city.dwelling_places:
+#         try:
+#             return attempt_to_start_conversation(home.people_here_now)
+#         except StopIteration:
+#             pass
+#     print "Exhausted all potential conversations in this city."
+#     print "Considering remote conversants..."
+#     try:
+#         return attempt_to_start_conversation(g.city.residents)
+#     except StopIteration:
+#         print "Exhausted potential conversations among even remote conversants."
+
+# p = g.productionist
+# p.lstm = p.produce_lstm_training_data
+# c = convo()
+# c.transpire()
+# print '\n'
+# print c
+# print '\n'
+# c.replay()

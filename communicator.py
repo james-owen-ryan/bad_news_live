@@ -45,7 +45,7 @@ class Communicator(object):
         # SCP that local file so that it is web-facing from my BSOE account
         ssh = SSHClient()
         ssh.load_system_host_keys()
-        ssh.connect(hostname='soe.ucsc.edu', username='jor', password=ZZZ)
+        ssh.connect(hostname='riverdance.soe.ucsc.edu', username='jor', password=ZZZ)
         scp = SCPClient(ssh.get_transport())
         scp.put(PATH_TO_PLAYER_INTERFACE_HTML_FILE, '~/.html/bad_news/player.html')
 
@@ -60,7 +60,7 @@ class Communicator(object):
         # SCP that local file so that it is web-facing from my BSOE account
         ssh = SSHClient()
         ssh.load_system_host_keys()
-        ssh.connect(hostname='soe.ucsc.edu', username='jor', password=ZZZ)
+        ssh.connect(hostname='riverdance.soe.ucsc.edu', username='jor', password=ZZZ)
         scp = SCPClient(ssh.get_transport())
         scp.put(PATH_TO_ACTOR_INTERFACE_HTML_FILE, '~/.html/bad_news/actor.html')
 
@@ -170,7 +170,9 @@ class Communicator(object):
                     people_here_now_str = 'None'
                 else:
                     people_here_now_str = (
-                        ', '.join(p.name for p in self.interlocutor.location.people_here_now-{self.interlocutor})
+                        ', '.join("{name} ({age})".format(name=p.name, age=p.age) for p in
+                                  self.interlocutor.location.people_here_now-{self.interlocutor}
+                        )
                     )
             else:
                 people_here_now_str = '[Player can see]'
@@ -233,7 +235,10 @@ class Communicator(object):
     def interlocutor_marital_status(self):
         """Return the interlocutor's marital status."""
         if self.interlocutor:
-            return self.interlocutor.get_feature('marital status')
+            if self.interlocutor.spouse:
+                return "married ({spouse_name})".format(spouse_name=self.interlocutor.spouse.name)
+            else:
+                return self.interlocutor.get_feature('marital status')
         else:
             return '-'
 
