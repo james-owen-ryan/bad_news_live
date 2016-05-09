@@ -159,7 +159,6 @@ class Game(object):
             self.sim.enact_lo_fi_simulation(5)
 
 
-
 class Player(object):
     """A collection of data and affordances surrounding a player's interaction with a Bad News game world."""
 
