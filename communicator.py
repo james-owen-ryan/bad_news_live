@@ -19,6 +19,10 @@ class Communicator(object):
         """Initialize a communicator object."""
         self.game = game
         self.player = game.player
+        # Attributes corresponding to which logo/icon should be displayed on the
+        # player interface at different times
+        self.current_logo_src = None
+        self.current_logo_height = None
         # Text that is displayed to the player at any given point during gameplay; updated
         # periodically by the gameplay instance
         self.player_exposition = ''

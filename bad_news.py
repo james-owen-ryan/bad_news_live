@@ -108,7 +108,29 @@ class Game(object):
             return [ef for ef in self.deceased_character.extended_family if ef.present]
 
     def begin(self):
-        """Prepare the opening exposition and start rendering the player and actor interfaces."""
+        """Prepare preliminary information and start rendering the player and actor interfaces."""
+        self._display_preliminary_information()
+        if not offline_mode:
+            self.communicator.update_player_interface()
+            self.communicator.update_actor_interface()
+
+    def _display_preliminary_information(self):
+        """Display preliminary information explaining the player interface."""
+        self.communicator.current_logo_src = "bad_news_logo.png"
+        self.communicator.current_logo_height = "102px"
+        opening_prompt = (
+            "This interface will be used to display information about your current environment as "
+            "you move about the town; <b>it is not interactive</b>. To carry out an action, such as going outside "
+            "or traveling to a given address, simply say what you'd like to do out loud. Your reference sheet has a "
+            "list of actions that you can take."
+            "<br><br>"
+            "When you are ready to begin, say so out loud."
+        )
+        self.communicator.player_exposition = opening_prompt
+        self.communicator.player_exposition_enumeration = ''
+
+    def prompt(self):
+        """Display the opening player exposition."""
         self._compose_opening_exposition()
         if not offline_mode:
             self.communicator.update_player_interface()
@@ -116,15 +138,13 @@ class Game(object):
 
     def _compose_opening_exposition(self):
         """Render the initial exposition that opens the game."""
+        self.communicator.current_logo_src = "bad_news_icon.png"
+        self.communicator.current_logo_height = "72px"
         opening_exposition = (
             "It is {nighttime_or_daytime}, {date}. You are alone in {a_house_or_apartment} at {address} "
             "in the town of {city_name}, pop. {city_pop}. A deceased person lies before you. "
             "{pronoun} is {description}. You must locate {possessive} next of kin and inform "
-            "that person of this death.<br><br>"
-            "This interface will be used to display information about your current environment; it is "
-            "not interactive.<br><br>"
-            "To submit a command, such as going outside or traveling to a given address, simply "
-            'speak the command aloud. Your reference sheet has a list of viable commands.'.format(
+            "that person of this death.<br><br>".format(
                 nighttime_or_daytime='nighttime' if self.sim.time_of_day == 'night' else 'daytime',
                 date=self.sim.date[7:] if self.sim.time_of_day == 'day' else self.sim.date[9:],
                 a_house_or_apartment="a house" if self.player.location.house else "an apartment",
@@ -926,11 +946,11 @@ class Player(object):
         if self.location is self.game.deceased_character.location:
             people_here_intro = "The deceased person remains here:"
         elif len(self.location.people_here_now) > 14:
-            people_here_intro = "There are very many people here:".format(
+            people_here_intro = "There are many people here:".format(
                 len(self.location.people_here_now)
             )
         elif len(self.location.people_here_now) > 7:
-            people_here_intro = "There are many people here:"
+            people_here_intro = "There are several people here:"
         elif len(self.location.people_here_now) > 1:
             people_here_intro = "There are {number_word} people here:".format(
                 number_word=NUMERAL_TO_WORD[len(self.location.people_here_now)]
@@ -981,11 +1001,11 @@ class Player(object):
     def _describe_business_interior(self):
         """Describe the interior of a business that the player is in."""
         if len(self.location.people_here_now) > 14:
-            people_here_intro = "There are very many people here:".format(
+            people_here_intro = "There are many people here:".format(
                 len(self.location.people_here_now)
             )
         elif len(self.location.people_here_now) > 7:
-            people_here_intro = "There are many people here:"
+            people_here_intro = "There are several people here:"
         elif len(self.location.people_here_now) > 1:
             people_here_intro = "There are {number_word} people here:".format(
                 number_word=NUMERAL_TO_WORD[len(self.location.people_here_now)]
@@ -1508,6 +1528,8 @@ class Player(object):
 
     def notify(self):
         """Notify interlocutor that the deceased person has died."""
+        self.game.communicator.current_logo_src = "bad_news_logo.png"
+        self.game.communicator.current_logo_height = "102px"
         # Determine whether the notified person was a next of kin
         if self.interlocutor in self.game.next_of_kin:
             verdict = "You have successfully notified the next of kin. You have delivered the bad news."
@@ -1599,62 +1621,7 @@ bd = pc.view_business_directory
 rd = pc.view_residential_directory
 out = pc.go_outside
 epilogue = bn.epilogue
+prompt = bn.prompt
 def lpush():
     l()
     push()
-
-
-# DEBUGGING/TESTING STUFF BELOW
-
-# import itertools
-# SPEAKER_TUPLES_ALREADY_USED = set()
-# def attempt_to_start_conversation(conversants_pool):
-#     all_possible_pairings = list(itertools.permutations(conversants_pool, 2))
-#     random.shuffle(all_possible_pairings)
-#     for initiator, recipient in all_possible_pairings:
-#         constraints = [
-#             initiator is not recipient,
-#             initiator.age > 5 and recipient.age > 5,
-#             (initiator, recipient) not in SPEAKER_TUPLES_ALREADY_USED,
-#             (recipient, initiator) not in SPEAKER_TUPLES_ALREADY_USED,
-#             recipient not in initiator.relationships,
-#             # initiator.accurate_belief(recipient, 'first name')
-#             ((initiator.occupation and not initiator.routine.working) or
-#               (recipient.occupation and not recipient.routine.working)),
-#             not initiator.belief(recipient, 'workplace')
-#         ]
-#         if all(constraint is True for constraint in constraints):
-#             SPEAKER_TUPLES_ALREADY_USED.add((initiator, recipient))
-#             return Conversation(initiator, recipient, debug=False)
-#     raise StopIteration
-# def convo():
-#     for tavern in g.city.businesses_of_type('Tavern'):
-#         try:
-#             return attempt_to_start_conversation(tavern.people_here_now)
-#         except StopIteration:
-#             pass
-#     for business in g.city.companies:
-#         try:
-#             return attempt_to_start_conversation(business.people_here_now)
-#         except StopIteration:
-#             pass
-#     for home in g.city.dwelling_places:
-#         try:
-#             return attempt_to_start_conversation(home.people_here_now)
-#         except StopIteration:
-#             pass
-#     print "Exhausted all potential conversations in this city."
-#     print "Considering remote conversants..."
-#     try:
-#         return attempt_to_start_conversation(g.city.residents)
-#     except StopIteration:
-#         print "Exhausted potential conversations among even remote conversants."
-
-# p = g.productionist
-# p.lstm = p.produce_lstm_training_data
-# c = convo()
-# c.transpire()
-# print '\n'
-# print c
-# print '\n'
-# c.replay()
