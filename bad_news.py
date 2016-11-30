@@ -25,7 +25,7 @@ NUMERAL_TO_WORD = {
 class Game(object):
     """A Bad News gameplay instance."""
 
-    def __init__(self, offline_mode=False):
+    def __init__(self, offline_mode=False, remote_wizard=False):
         """Initialize a Game object."""
         if offline_mode:
             print "Okay. Preparing for single-player mode."
@@ -38,6 +38,7 @@ class Game(object):
         self.sim.enact_no_fi_simulation()
         self.city = self.sim.city
         self.offline_mode = offline_mode  # Whether James is playtesting, in which case don't show hidden knowledge
+        self.remote_wizard = remote_wizard
         self.deceased_character = self._select_deceased_character()
         self.nok = self.next_of_kin = self._determine_all_valid_next_of_kin()
         self.player = Player(game=self)
@@ -46,7 +47,7 @@ class Game(object):
         if offline_mode:
             self.communicator = None
         else:
-            self.communicator = Communicator(game=self)
+            self.communicator = Communicator(game=self, remote_wizard=remote_wizard)
         self._simulate_the_death()
         self._init_set_up_helper_attributes()
 

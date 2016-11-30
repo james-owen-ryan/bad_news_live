@@ -15,9 +15,10 @@ class Communicator(object):
     our various game interfaces.
     """
 
-    def __init__(self, game):
+    def __init__(self, game, remote_wizard=False):
         """Initialize a communicator object."""
         self.game = game
+        self.remote_wizard = remote_wizard
         self.player = game.player
         # Attributes corresponding to which logo/icon should be displayed on the
         # player interface at different times
@@ -46,12 +47,13 @@ class Communicator(object):
         f = open(PATH_TO_PLAYER_INTERFACE_HTML_FILE, 'w')
         f.write(rendered_player_template)
         f.close()
-        # SCP that local file so that it is web-facing from my BSOE account
-        # ssh = SSHClient()
-        # ssh.load_system_host_keys()
-        # ssh.connect(hostname='riverdance.soe.ucsc.edu', username='jor', password=ZZZ)
-        # scp = SCPClient(ssh.get_transport())
-        # scp.put(PATH_TO_PLAYER_INTERFACE_HTML_FILE, '~/.html/bad_news/player.html')
+        if self.remote_wizard:
+            # SCP that local file so that it is web-facing from my BSOE account
+            ssh = SSHClient()
+            ssh.load_system_host_keys()
+            ssh.connect(hostname='riverdance.soe.ucsc.edu', username='jor', password=ZZZ)
+            scp = SCPClient(ssh.get_transport())
+            scp.put(PATH_TO_PLAYER_INTERFACE_HTML_FILE, '~/.html/bad_news/player.html')
 
     def update_actor_interface(self):
         """Update the actor interface by re-writing its HTML file."""
@@ -61,12 +63,13 @@ class Communicator(object):
         f = open(PATH_TO_ACTOR_INTERFACE_HTML_FILE, 'w')
         f.write(rendered_actor_template)
         f.close()
-        # # SCP that local file so that it is web-facing from my BSOE account
-        # ssh = SSHClient()
-        # ssh.load_system_host_keys()
-        # ssh.connect(hostname='riverdance.soe.ucsc.edu', username='jor', password=ZZZ)
-        # scp = SCPClient(ssh.get_transport())
-        # scp.put(PATH_TO_ACTOR_INTERFACE_HTML_FILE, '~/.html/bad_news/actor.html')
+        if self.remote_wizard:
+            # SCP that local file so that it is web-facing from my BSOE account
+            ssh = SSHClient()
+            ssh.load_system_host_keys()
+            ssh.connect(hostname='sundance.soe.ucsc.edu', username='jor', password=ZZZ)
+            scp = SCPClient(ssh.get_transport())
+            scp.put(PATH_TO_ACTOR_INTERFACE_HTML_FILE, '~/.html/bad_news/actor.html')
 
     def speak_directly_to_player(self, exposition):
         """Manually edit the player interface and display that text."""
