@@ -1,47 +1,32 @@
 <html>
   <head>
-    <!-- Load jQuery -->
-    <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
-    <!-- Load Google font -->
-    <link href='//fonts.googleapis.com/css?family=Quicksand:300,400,700' rel='stylesheet' type='text/css'>
-    <!-- Timer style -->
     <style>
-    .timer {
-      text-align: center;
-      color: black;
-      font-family: 'Quicksand', sans-serif;
-      font-weight: 400;
-      font-size: 28px;
+    @font-face {
+      font-family: "Quicksand";
+      src: url(fonts/Quicksand-Regular.ttf);
+      font-weight:400;
+    }
+    .exposition {
+        width: 80%;
+        text-align: center;
+        font-family: 'Quicksand', sans-serif;
+        font-weight: 400;
+        font-size: 28px;
+        line-height: 37px;
+    }
+    .enumerationBox {
+        width: 65%;
+        text-align: center;
+    }
+    .enumeration {
+        width: 100%;
+        text-align: left;
+        font-family: 'Quicksand', sans-serif;
+        font-weight: 400;
+        font-size: 28px;
+        line-height: 37px;
     }
     </style>
-    <!-- Timer-countdown code (taken from StackOverflow) -->
-    <!--<script>-->
-    <!--function startTimer(duration, display) {-->
-        <!--var timer = duration, minutes, seconds;-->
-        <!--setInterval(function () {-->
-            <!--minutes = parseInt(timer / 60, 10);-->
-            <!--seconds = parseInt(timer % 60, 10);-->
-            <!--minutes = minutes < 10 ? "0" + minutes : minutes;-->
-            <!--seconds = seconds < 10 ? "0" + seconds : seconds;-->
-            <!--display.text(minutes + ":" + seconds);-->
-            <!--if (&#45;&#45;timer < 30) {-->
-              <!--var timerDiv = document.querySelector("#countdown");-->
-              <!--if (timerDiv.style.color != "black") {-->
-                <!--timerDiv.style.color = "black";-->
-              <!--}-->
-              <!--else {-->
-                <!--timerDiv.style.color = "white";-->
-              <!--}-->
-            <!--}-->
-        <!--}, 1000);-->
-    <!--}-->
-
-    <!--jQuery(function ($) {-->
-        <!--var fifteenMinutes = 60 * 15,-->
-            <!--display = $('#countdown');-->
-        <!--startTimer(fifteenMinutes, display);-->
-    <!--});-->
-    <!--</script>-->
     <!-- Autoreloader code -->
     <script>
     // Set up script to auto-reload the interface every 300ms. This works
@@ -53,7 +38,6 @@
     </script>
   </head>
   <body>
-     <div class=timer id="countdown"></div>
      <br>
      <div id="interface"></div>
   </body>

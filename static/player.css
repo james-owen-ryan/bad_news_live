@@ -1,0 +1,26 @@
+@font-face {
+  font-family: "Quicksand";
+  src: url(fonts/Quicksand-Regular.ttf);
+  font-weight:400;
+}
+
+.exposition {
+    width: 80%;
+    text-align: center;
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 400;
+    font-size: 28px;
+    line-height: 37px;
+}
+.enumerationBox {
+    width: 65%;
+    text-align: center;
+}
+.enumeration {
+    width: 100%;
+    text-align: left;
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 400;
+    font-size: 28px;
+    line-height: 37px;
+}

@@ -1,36 +1,6 @@
 <html>
   <head>
-    <!-- Load jQuery -->
-    <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
-    <link rel="stylesheet" href="main.css">
-    <!-- Timer-countdown code (taken from StackOverflow) -->
-    <script>
-    function startTimer(duration, display) {
-        var timer = duration, minutes, seconds;
-        setInterval(function () {
-            minutes = parseInt(timer / 60, 10);
-            seconds = parseInt(timer % 60, 10);
-            minutes = minutes < 10 ? "0" + minutes : minutes;
-            seconds = seconds < 10 ? "0" + seconds : seconds;
-            display.text(minutes + ":" + seconds);
-            if (--timer < 30) {
-              var timerDiv = document.querySelector("#countdown");
-              if (timerDiv.style.color != "black") {
-                timerDiv.style.color = "black";
-              }
-              else {
-                timerDiv.style.color = "white";
-              }
-            }
-        }, 1000);
-    }
-
-    jQuery(function ($) {
-        var fifteenMinutes = 60 * 15,
-            display = $('#countdown');
-        startTimer(fifteenMinutes, display);
-    });
-    </script>
+    <link rel="stylesheet" href="actor.css">
     <!-- Autoreloader code -->
     <script>
     // Set up script to auto-reload the interface every 300ms. This works
@@ -42,9 +12,6 @@
     </script>
   </head>
   <body>
-     <center>
-     <!--<div class=timer id="countdown"></div>-->
-     </center>
      <div id="interface"></div>
   </body>
 </html>
