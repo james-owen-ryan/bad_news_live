@@ -51,7 +51,7 @@ class Communicator(object):
             # SCP that local file so that it is web-facing from my BSOE account
             ssh = SSHClient()
             ssh.load_system_host_keys()
-            ssh.connect(hostname='riverdance.soe.ucsc.edu', username='jor', password=ZZZ)
+            ssh.connect(hostname='stardance.soe.ucsc.edu', username='jor', password=ZZZ)
             scp = SCPClient(ssh.get_transport())
             scp.put(PATH_TO_PLAYER_INTERFACE_HTML_FILE, '~/.html/bad_news/player.html')
 
@@ -67,7 +67,7 @@ class Communicator(object):
             # SCP that local file so that it is web-facing from my BSOE account
             ssh = SSHClient()
             ssh.load_system_host_keys()
-            ssh.connect(hostname='sundance.soe.ucsc.edu', username='jor', password=ZZZ)
+            ssh.connect(hostname='stardance.soe.ucsc.edu', username='jor', password=ZZZ)
             scp = SCPClient(ssh.get_transport())
             scp.put(PATH_TO_ACTOR_INTERFACE_HTML_FILE, '~/.html/bad_news/actor.html')
 

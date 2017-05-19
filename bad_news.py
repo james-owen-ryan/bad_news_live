@@ -9,6 +9,9 @@ from communicator import Communicator
 import random
 import string
 
+
+REMOTE_WIZARD = True
+
 # TODO LIST GRAVESTONES IN THE CEMETERY
 
 
@@ -25,7 +28,7 @@ NUMERAL_TO_WORD = {
 class Game(object):
     """A Bad News gameplay instance."""
 
-    def __init__(self, offline_mode=False, remote_wizard=False):
+    def __init__(self, offline_mode=False, remote_wizard=REMOTE_WIZARD):
         """Initialize a Game object."""
         if offline_mode:
             print "Okay. Preparing for single-player mode."
@@ -142,10 +145,9 @@ class Game(object):
         self.communicator.current_logo_src = "bad_news_icon.png"
         self.communicator.current_logo_height = "72px"
         opening_exposition = (
-            "It is {nighttime_or_daytime}, {date}. You are alone in {a_house_or_apartment} at {address} "
+            "It is {nighttime_or_daytime}, {date}. <b>You are in {a_house_or_apartment}</b> at {address} "
             "in the town of {city_name}, pop. {city_pop}. A deceased person lies before you. "
-            "{pronoun} is {description}. You must locate {possessive} next of kin and inform "
-            "that person of this death.<br><br>".format(
+            "{pronoun} is {description}.<br><br>".format(
                 nighttime_or_daytime='nighttime' if self.sim.time_of_day == 'night' else 'daytime',
                 date=self.sim.date[7:] if self.sim.time_of_day == 'day' else self.sim.date[9:],
                 a_house_or_apartment="a house" if self.player.location.house else "an apartment",
@@ -636,7 +638,7 @@ class Player(object):
                     buildings_enumeration
                 )
         else:
-            exposition = "{intro} the {}. There are no buildings here.".format(
+            exposition = "{} the {}. There are no buildings here.".format(
                 "You are at" if not distance_traveled else "You traveled {} to".format(
                     distance_traveled
                 ),
@@ -941,8 +943,8 @@ class Player(object):
                 person_i_know_lives_here=self.salient_person_who_lives_in_a_house[self.location].name
             )
         else:
-            house_noun_phrase = "a {house_or_apartment}".format(
-                house_or_apartment="home" if self.location.house else "apartment"
+            house_noun_phrase = "{house_or_apartment}".format(
+                house_or_apartment="a home" if self.location.house else "an apartment"
             )
         if self.location is self.game.deceased_character.location:
             people_here_intro = "The deceased person remains here:"
@@ -1405,6 +1407,7 @@ class Player(object):
         """Remember the name of the person you are talking to."""
         self.people_i_know_by_name.add(self.interlocutor)
         self.observe(exposition_prefix=None, update_enumeration_only=True)
+        speak("You are speaking to {}.".format(pc.i.name))
 
     def ring(self):
         """Print exposition surrounding the ringing of a doorbell."""
@@ -1418,7 +1421,7 @@ class Player(object):
             exposition = '{answerer_name} {answers}.'.format(
                 answerer_name=answerer.name,
                 answers=verb_phrase
-            ).capitalize()
+            )
         elif answerer:
             exposition = '{age_and_gender} with {appearance} {answers}.'.format(
                 age_and_gender=answerer.age_and_gender_description.capitalize(),
@@ -1623,6 +1626,9 @@ rd = pc.view_residential_directory
 out = pc.go_outside
 epilogue = bn.epilogue
 prompt = bn.prompt
+def I():
+    upi()
+    uai()
 def lpush():
     l()
     push()

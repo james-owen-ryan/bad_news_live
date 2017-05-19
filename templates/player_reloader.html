@@ -1,11 +1,19 @@
 <html>
   <head>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="viewport" content="width=device-width" />
     <script type="text/javascript" src="jquery-1.4.2.min.js"></script>
     <style>
     @font-face {
       font-family: "Quicksand";
       src: url(fonts/Quicksand-Regular.ttf);
-      font-weight:400;
+      font-weight: normal;
+    }
+    @font-face {
+      font-family: "Quicksand";
+      src: url(fonts/Quicksand-Bold.ttf);
+      font-weight: bold;
     }
     .exposition {
         width: 80%;
@@ -35,7 +43,7 @@
     // game overwrites as appropriate during gameplay
     refresh_alerts = setInterval(function (){
         $("#interface").load("player.html");
-    }, 100)
+    }, 300)
     </script>
   </head>
   <body>
