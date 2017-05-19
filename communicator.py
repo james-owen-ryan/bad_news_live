@@ -1,6 +1,6 @@
 import random
 import jinja2
-from paramiko import SSHClient
+import paramiko
 from scp import SCPClient
 
 
@@ -38,6 +38,12 @@ class Communicator(object):
         template_env = jinja2.Environment(loader=template_loader)
         self.player_template = template_env.get_template('player.html')
         self.actor_template = template_env.get_template('actor.html')
+        if self.remote_wizard:
+            self.ssh = paramiko.SSHClient()
+            # ssh.load_system_host_keys()
+            self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            self.ssh.connect(hostname='stardance.soe.ucsc.edu', username='jor', password=ZZZ)
+            self.scp = SCPClient(self.ssh.get_transport())
 
     def update_player_interface(self):
         """Update the player interface by re-writing its HTML file."""
@@ -49,11 +55,7 @@ class Communicator(object):
         f.close()
         if self.remote_wizard:
             # SCP that local file so that it is web-facing from my BSOE account
-            ssh = SSHClient()
-            ssh.load_system_host_keys()
-            ssh.connect(hostname='stardance.soe.ucsc.edu', username='jor', password=ZZZ)
-            scp = SCPClient(ssh.get_transport())
-            scp.put(PATH_TO_PLAYER_INTERFACE_HTML_FILE, '~/.html/bad_news/player.html')
+            self.scp.put(PATH_TO_PLAYER_INTERFACE_HTML_FILE, '~/.html/bad_news/player.html')
 
     def update_actor_interface(self):
         """Update the actor interface by re-writing its HTML file."""
@@ -65,11 +67,7 @@ class Communicator(object):
         f.close()
         if self.remote_wizard:
             # SCP that local file so that it is web-facing from my BSOE account
-            ssh = SSHClient()
-            ssh.load_system_host_keys()
-            ssh.connect(hostname='stardance.soe.ucsc.edu', username='jor', password=ZZZ)
-            scp = SCPClient(ssh.get_transport())
-            scp.put(PATH_TO_ACTOR_INTERFACE_HTML_FILE, '~/.html/bad_news/actor.html')
+            self.scp.put(PATH_TO_ACTOR_INTERFACE_HTML_FILE, '~/.html/bad_news/actor.html')
 
     def speak_directly_to_player(self, exposition):
         """Manually edit the player interface and display that text."""
