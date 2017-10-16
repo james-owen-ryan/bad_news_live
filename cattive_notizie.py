@@ -1,6 +1,6 @@
 import sys
 # TODO BEFORE GOING LIVE ADD ALL ANYTOWN FILES INTO THIS PROJECT DIRECTORY
-PATH_TO_ANYTOWN = '../anytown'
+PATH_TO_ANYTOWN = '../anytown_italiano_americano'
 sys.path.append(PATH_TO_ANYTOWN)
 
 from game import Game as Sim
@@ -11,6 +11,7 @@ import string
 
 
 REMOTE_WIZARD = True
+MAX_PEOPLE_AT_ONE_LOCATION = 5
 
 # TODO LIST GRAVESTONES IN THE CEMETERY
 
@@ -39,6 +40,37 @@ class Game(object):
             pass
         print "\nPreparing for gameplay..."
         self.sim.enact_no_fi_simulation()
+        # Force every location to have at most N characters there, thus allowing us
+        # to have N performers in any given shift
+        print '\nEnforcing a maximum of {n} characters being at any single location...'.format(n=MAX_PEOPLE_AT_ONE_LOCATION)
+        for person in self.sim.city.residents:
+            person.routine.enact(max_people_at_one_location=MAX_PEOPLE_AT_ONE_LOCATION)
+        # If somehow this person is still at a place with too many people, select specific
+        # individuals there and move them
+        self.sim.overflow = []
+        for b in self.sim.city.buildings:
+            if len(b.people_here_now) > MAX_PEOPLE_AT_ONE_LOCATION:
+                expendables = [p for p in b.people_here_now if p.routine.occasion != 'work']
+                n_to_move = len(b.people_here_now) - MAX_PEOPLE_AT_ONE_LOCATION
+                if len(expendables) >= n_to_move:
+                    characters_we_will_move = random.sample(expendables, n_to_move)
+                elif expendables:
+                    characters_we_will_move = list(expendables)
+                    while len(characters_we_will_move) < n_to_move:
+                        others_still_here = [p for p in b.people_here_now if p not in characters_we_will_move]
+                        characters_we_will_move.append(random.choice[others_still_here])
+                else:
+                    n_to_move = len(b.people_here_now) - MAX_PEOPLE_AT_ONE_LOCATION
+                    characters_we_will_move = random.sample(b.people_here_now, n_to_move)
+                for c in characters_we_will_move:
+                    c.routine.enact(max_people_at_one_location=MAX_PEOPLE_AT_ONE_LOCATION)
+        # Lastly, if any location *still* has overflow, print out a warning note on the screen, so
+        # that the wizard can at least prepare for any case in which the player may visit this place
+        self.sim.overflow = []
+        for b in self.sim.city.buildings:
+            if len(b.people_here_now) > MAX_PEOPLE_AT_ONE_LOCATION:
+                self.sim.overflow.append(b)
+                print '\tWarning: {n} people are at {place}'.format(n=len(b.people_here_now), place=str(b))
         self.city = self.sim.city
         self.offline_mode = offline_mode  # Whether James is playtesting, in which case don't show hidden knowledge
         self.remote_wizard = remote_wizard
@@ -50,7 +82,9 @@ class Game(object):
         if offline_mode:
             self.communicator = None
         else:
-            self.communicator = Communicator(game=self, remote_wizard=remote_wizard)
+            self.communicator = Communicator(
+                game=self, max_people_at_one_location=MAX_PEOPLE_AT_ONE_LOCATION, remote_wizard=remote_wizard
+            )
         self._simulate_the_death()
         self._init_set_up_helper_attributes()
 
@@ -120,7 +154,7 @@ class Game(object):
 
     def _display_preliminary_information(self):
         """Display preliminary information explaining the player interface."""
-        self.communicator.current_logo_src = "bad_news_logo.png"
+        self.communicator.current_logo_src = "cattive_notizie_logo.png"
         self.communicator.current_logo_height = "102px"
         opening_prompt = (
             "This interface will be used to display information about your current environment as "
@@ -142,12 +176,12 @@ class Game(object):
 
     def _compose_opening_exposition(self):
         """Render the initial exposition that opens the game."""
-        self.communicator.current_logo_src = "bad_news_icon.png"
+        self.communicator.current_logo_src = "cattive_notizie_icon.png"
         self.communicator.current_logo_height = "72px"
         opening_exposition = (
             "It is {nighttime_or_daytime}, {date}. <b>You are in {a_house_or_apartment}</b> at {address} "
-            "in the town of {city_name}, pop. {city_pop}. A deceased person lies before you. "
-            "{pronoun} is {description}.<br><br>".format(
+            "in the small Italian-American community of {city_name}, pop. {city_pop}. An unidentified deceased person "
+            "lies before you. {pronoun} is {description}.<br><br>".format(
                 nighttime_or_daytime='nighttime' if self.sim.time_of_day == 'night' else 'daytime',
                 date=self.sim.date[7:] if self.sim.time_of_day == 'day' else self.sim.date[9:],
                 a_house_or_apartment="a house" if self.player.location.house else "an apartment",
@@ -516,6 +550,7 @@ class Player(object):
             if not self.location.locked or let_in or self.location is self.game.deceased_character.location:
                 self.outside = False
                 self.observe()
+                self.game.communicator.update_character_sheets()
             else:
                 exposition = 'The gate is locked.' if self.location.lot.tract else 'The door is locked.'
                 if self.game.offline_mode:
@@ -523,6 +558,7 @@ class Player(object):
                 else:
                     self.game.communicator.player_exposition = exposition
                     self.game.communicator.update_player_interface()
+                    self.game.communicator.update_character_sheets()
         else:
             if self.location.__class__.__name__ != 'Block':
                 self.location = self.location.block
@@ -531,6 +567,7 @@ class Player(object):
             if not self.location.locked or let_in or self.location is self.game.deceased_character.location:
                 self.outside = False
                 self.observe()
+                self.game.communicator.update_character_sheets()
             else:
                 exposition = 'The gate is locked.' if self.location.lot.tract else 'The door is locked.'
                 if self.game.offline_mode:
@@ -538,6 +575,7 @@ class Player(object):
                 else:
                     self.game.communicator.player_exposition = exposition
                     self.game.communicator.update_player_interface()
+                    self.game.communicator.update_character_sheets()
 
     def enter_apt(self, unit_number=None, let_in=False):
         """Enter a building."""
@@ -570,6 +608,7 @@ class Player(object):
 
     def observe(self, exposition_prefix=None, update_enumeration_only=False, distance_traveled=None):
         """Describe the player's current setting."""
+        self.end_conversation()
         if self.outside:  # Interior scenes
             if self.location.type == 'block':
                 exposition, enumeration = self._describe_the_block_player_is_on(
@@ -1532,7 +1571,7 @@ class Player(object):
 
     def notify(self):
         """Notify interlocutor that the deceased person has died."""
-        self.game.communicator.current_logo_src = "bad_news_logo.png"
+        self.game.communicator.current_logo_src = "cattive_notizie_logo.png"
         self.game.communicator.current_logo_height = "102px"
         # Determine whether the notified person was a next of kin
         if self.interlocutor in self.game.next_of_kin:
@@ -1632,3 +1671,5 @@ def I():
 def lpush():
     l()
     push()
+a = pc.address
+exit = pc.exit

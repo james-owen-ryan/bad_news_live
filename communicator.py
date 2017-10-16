@@ -4,6 +4,7 @@ import paramiko
 from scp import SCPClient
 
 
+PATH_TO_CHARACTER_SHEETS_DIRECTORY = '/Users/jamesryan/Desktop/bad_news_server/character_one_sheets'
 PATH_TO_PLAYER_INTERFACE_HTML_FILE = '/Users/jamesryan/Desktop/bad_news_server/player.html'
 PATH_TO_ACTOR_INTERFACE_HTML_FILE = '/Users/jamesryan/Desktop/bad_news_server/actor.html'
 
@@ -15,7 +16,7 @@ class Communicator(object):
     our various game interfaces.
     """
 
-    def __init__(self, game, remote_wizard=False):
+    def __init__(self, game, max_people_at_one_location, remote_wizard=False):
         """Initialize a communicator object."""
         self.game = game
         self.remote_wizard = remote_wizard
@@ -24,6 +25,7 @@ class Communicator(object):
         # player interface at different times
         self.current_logo_src = None
         self.current_logo_height = None
+
         # Text that is displayed to the player at any given point during gameplay; updated
         # periodically by the gameplay instance
         self.player_exposition = ''
@@ -36,14 +38,174 @@ class Communicator(object):
         # Load templates
         template_loader = jinja2.FileSystemLoader(searchpath="./templates")
         template_env = jinja2.Environment(loader=template_loader)
+        self.character_sheet_template = template_env.get_template('character_sheet.html')
         self.player_template = template_env.get_template('player.html')
         self.actor_template = template_env.get_template('actor.html')
+        self.max_people_at_one_location = max_people_at_one_location
         if self.remote_wizard:
             self.ssh = paramiko.SSHClient()
             # ssh.load_system_host_keys()
             self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             self.ssh.connect(hostname='stardance.soe.ucsc.edu', username='jor', password=ZZZ)
             self.scp = SCPClient(self.ssh.get_transport())
+
+    def _generate_character_sheet(self, character):
+        """Return a character sheet for the given character as a string."""
+        character_sheet = ''
+        # Name and physical description
+        name_and_physical_description_str = "I am {name}, {description}. ".format(
+            name=character.name, description=character.description
+        )
+        character_sheet += name_and_physical_description_str
+        # Age and how long they've lived in this town
+        age_str = "I am {age} {years} old".format(
+            age=character.age if character.age > 0 else 'less than a',
+            years='year' if character.age == 1 else 'years'
+        )
+        if character.birth:
+            how_long_in_town_str = "I have lived here in {town} my entire life".format(town=character.city.name)
+        else:
+            how_long_in_town_str = "I have lived here in {town} for {n} {years}".format(
+                town=character.city.name,
+                n=character.years_i_lived_here if character.years_i_lived_here > 0 else 'less than a',
+                years='year' if character.years_i_lived_here == 1 else 'years'
+            )
+        age_and_how_long_in_town_str = "{age_str}, and {how_long_in_town_str}. ".format(
+            age_str=age_str, how_long_in_town_str=how_long_in_town_str
+        )
+        character_sheet += age_and_how_long_in_town_str
+        # Personality (outlining strong traits only)
+        strong_personality_traits = []
+        if character.personality.high_o:
+            strong_personality_traits.append("open-minded")
+        elif character.personality.low_o:
+            strong_personality_traits.append("close-minded")
+        if character.personality.high_c:
+            strong_personality_traits.append("disciplined")
+        elif character.personality.low_c:
+            strong_personality_traits.append("impulsive")
+        if character.personality.high_e:
+            strong_personality_traits.append("outgoing")
+        elif character.personality.low_e:
+            strong_personality_traits.append("shy")
+        if character.personality.high_a:
+            strong_personality_traits.append("nice")
+        elif character.personality.low_a:
+            strong_personality_traits.append("rude")
+        if character.personality.high_n:
+            strong_personality_traits.append("neurotic")
+        elif character.personality.low_n:
+            strong_personality_traits.append("laid-back")
+        if strong_personality_traits:
+            personality_str = ', '.join(strong_personality_traits)
+        else:
+            personality_str = "neutral in terms of personality"
+        character_sheet += "I am {personality_str}. ".format(personality_str=personality_str)
+        if character.age > 16:
+            # Sexual preferences
+            if character.attracted_to_men and character.attracted_to_women:
+                sexual_preferences_str = "I am interested in men and women"
+            elif character.attracted_to_men:
+                sexual_preferences_str = "I am interested in men"
+            elif character.attracted_to_women:
+                sexual_preferences_str = "I am interested in women"
+            else:
+                sexual_preferences_str = "I am not interested in men or women"
+            character_sheet += "{sexual_preferences_str}. ".format(sexual_preferences_str=sexual_preferences_str)
+            # Family
+            if character.marriage:
+                marriage_str = "I have been married to {spouse} for {n} {years}".format(
+                    spouse=character.spouse.name,
+                    n=character.marriage.duration if character.marriage.duration > 0 else 'less than a',
+                    years='year' if character.marriage.duration == 1 else 'years'
+                )
+            else:
+                marriage_str = "I am single"
+            if any(m for m in character.marriages if m.terminus):
+                past_marriages = [m for m in character.marriages if m.terminus]
+                past_marriages_str = "I had {n} earlier {marriages} that ended in {termini}".format(
+                    n=len(past_marriages),
+                    marriages='marriage' if len(past_marriages) == 1 else 'marriages',
+                    termini=", ".join(m.terminus.__class__.__name__.lower() for m in past_marriages)
+                )
+            elif character.marriage:
+                past_marriages_str = "I had no earlier marriages"
+            else:
+                past_marriages_str = "I have never been married"
+            combined_marriage_str = "{marriage_str}. {past_marriages_str}. ".format(
+                marriage_str=marriage_str, past_marriages_str=past_marriages_str
+            )
+            character_sheet += combined_marriage_str
+            # Occupation
+            if character.occupation:
+                occupation_str = "I have been {a} {shift} {occupation} at {workplace} for {n} {years}".format(
+                    a='an' if character.occupation.vocation[0] in 'aeiou' else 'a',
+                    shift="{shift}-shift".format(shift=character.occupation.shift),
+                    occupation=character.occupation.vocation,
+                    workplace=character.occupation.company.name,
+                    n=character.occupation.years_experience if character.occupation.years_experience > 0 else 'less than a',
+                    years='year' if character.occupation.years_experience == 1 else 'years'
+                )
+            elif character.retired:
+                occupation_str = "I am retired"
+            else:
+                occupation_str = "I do not have a job"
+            if (not character.occupation and character.occupations) or len(character.occupations) > 1:
+                past_occupations = character.occupations if not character.occupation else character.occupations[:-1]
+                past_occupation_str = "In the past, I worked as a {past_occupations}".format(
+                    past_occupations=", ".join(o.vocation for o in past_occupations)
+                )
+            elif len(character.occupations) == 1:
+                past_occupation_str = "This is the only job I've ever had"
+            else:
+                past_occupation_str = "I have never had a job"
+            combined_occupation_str = "{occupation_str}. {past_occupation_str}.".format(
+                occupation_str=occupation_str, past_occupation_str=past_occupation_str
+            )
+            character_sheet += combined_occupation_str
+        return character_sheet
+
+    def update_character_sheets(self):
+        """Update the character one-sheets for the given location, by writing corresponding HTML files."""
+        for character in self.game.player.location.people_here_now:
+            # Generate the character sheet
+            character_sheet = self._generate_character_sheet(character=character)
+            # Fill in the template
+            rendered_character_sheet_template = self.character_sheet_template.render(character_sheet=character_sheet)
+            # Write that out as a local HTML file
+            path_to_write_to = "{dir}/char{character_number}.html".format(
+                dir=PATH_TO_CHARACTER_SHEETS_DIRECTORY,
+                character_number=character.temp_address_number
+            )
+            f = open(path_to_write_to, 'w')
+            f.write(rendered_character_sheet_template)
+            f.close()
+            if self.remote_wizard:
+                # SCP that local file so that it is web-facing from my BSOE account
+                self.scp.put(path_to_write_to, '~/.html/bad_news/char{n}.html'.format(n=character.temp_address_number))
+        # Write out warning files for all invalid character numbers, in case the performer
+        # goes to the wrong URL
+        if self.game.player.location.people_here_now:
+            largest_temp_address_number = (
+                max(self.game.player.location.people_here_now, key=lambda p: p.temp_address_number).temp_address_number
+            )
+        else:
+            largest_temp_address_number = 0
+        for i in xrange(largest_temp_address_number+1, self.max_people_at_one_location-1):
+            character_sheet = "THIS IS NOT A VALID CHARACTER NUMBER FOR THIS SCENE"
+            # Fill in the template
+            rendered_character_sheet_template = self.character_sheet_template.render(character_sheet=character_sheet)
+            # Write that out as a local HTML file
+            path_to_write_to = "{dir}/char{character_number}.html".format(
+                dir=PATH_TO_CHARACTER_SHEETS_DIRECTORY,
+                character_number=i
+            )
+            f = open(path_to_write_to, 'w')
+            f.write(rendered_character_sheet_template)
+            f.close()
+            if self.remote_wizard:
+                # SCP that local file so that it is web-facing from my BSOE account
+                self.scp.put(path_to_write_to, '~/.html/bad_news/char{n}.html'.format(n=i))
 
     def update_player_interface(self):
         """Update the player interface by re-writing its HTML file."""

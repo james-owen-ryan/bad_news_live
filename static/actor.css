@@ -5,8 +5,8 @@
 }
 
 body {
-	background: #74AFAD;
-	color: #ECECEA;
+	background: #fff;
+	color: #009246;
 	font-family: 'FjordOne', serif;
 	font-size: 12px;
 	
@@ -15,7 +15,7 @@ body {
 	#558C89 - dark-grey-blue
 	#74AFAD - light blue
 	#D9853B - orange
-	#ECECEA - light grey
+	#009246 - light grey
 	*/
 }
 
@@ -76,7 +76,7 @@ body {
 }
 
 .dynamicData{
-	color: #8644DF;
+	color: #CE2B37;
 	padding-left: 2px;
 	padding-right: 8px;
 }
@@ -129,7 +129,7 @@ body {
 	padding-left: 10px;
 	font-size: 12px;
 	font-style: italic;
-	color: #4244DF;
+	color: #CE2B37;
 }
 
 .dynamicList{

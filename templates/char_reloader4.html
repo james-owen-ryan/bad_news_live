@@ -1,0 +1,53 @@
+<html>
+  <head>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="viewport" content="width=device-width" />
+    <script type="text/javascript" src="jquery-1.4.2.min.js"></script>
+    <style>
+    @font-face {
+      font-family: "Quicksand";
+      src: url(fonts/Quicksand-Regular.ttf);
+      font-weight: normal;
+    }
+    @font-face {
+      font-family: "Quicksand";
+      src: url(fonts/Quicksand-Bold.ttf);
+      font-weight: bold;
+    }
+    .exposition {
+        width: 80%;
+        text-align: center;
+        font-family: 'Quicksand', sans-serif;
+        font-weight: 400;
+        font-size: 28px;
+        line-height: 37px;
+    }
+    .enumerationBox {
+        width: 65%;
+        text-align: center;
+    }
+    .enumeration {
+        width: 100%;
+        text-align: left;
+        font-family: 'Quicksand', sans-serif;
+        font-weight: 400;
+        font-size: 28px;
+        line-height: 37px;
+    }
+    </style>
+    <!-- Autoreloader code -->
+    <script>
+    // Set up script to auto-reload the interface every 300ms. This works
+    // by loading the content of a server file called 'player.html', which the
+    // game overwrites as appropriate during gameplay
+    refresh_alerts = setInterval(function (){
+        $("#interface").load("char4.html");
+    }, 300)
+    </script>
+  </head>
+  <body>
+     <br>
+     <div id="interface"></div>
+  </body>
+</html>
