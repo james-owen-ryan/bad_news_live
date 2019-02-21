@@ -40,6 +40,7 @@ class Game(object):
         print "\nPreparing for gameplay..."
         self.sim.enact_no_fi_simulation()
         self.city = self.sim.city
+        self.town = self.city
         self.offline_mode = offline_mode  # Whether James is playtesting, in which case don't show hidden knowledge
         self.remote_wizard = remote_wizard
         self.deceased_character = self._select_deceased_character()
@@ -115,7 +116,11 @@ class Game(object):
         """Prepare preliminary information and start rendering the player and actor interfaces."""
         self._display_preliminary_information()
         if not offline_mode:
-            self.communicator.update_player_interface()
+            if not REMOTE_WIZARD:
+                for _ in xrange(10):
+                    self.communicator.update_player_interface()
+            else:
+                self.communicator.update_player_interface()
             self.communicator.update_actor_interface()
 
     def _display_preliminary_information(self):
@@ -406,7 +411,7 @@ class Player(object):
         """Go to the nearest business of the given type that you haven't been to yet."""
         self.goto_nearest(business_type=business_type, that_i_havent_been_to=True)
 
-    def goback(self):
+    def go_back(self):
         """Go back to the last place you were at."""
         # Since this method is called when a player's location changes, it also
         # makes sense to end the character's current conversation, if any, because
@@ -522,7 +527,11 @@ class Player(object):
                     print '\n{exposition}\n'.format(exposition=exposition)
                 else:
                     self.game.communicator.player_exposition = exposition
-                    self.game.communicator.update_player_interface()
+                    if not REMOTE_WIZARD:
+                        for _ in xrange(10):
+                            self.game.communicator.update_player_interface()
+                    else:
+                        self.game.communicator.update_player_interface()
         else:
             if self.location.__class__.__name__ != 'Block':
                 self.location = self.location.block
@@ -613,7 +622,11 @@ class Player(object):
                 # method to update the enumeration to include an NPC's name
                 self.game.communicator.player_exposition = exposition
             self.game.communicator.player_exposition_enumeration = enumeration
-            self.game.communicator.update_player_interface()
+            if not REMOTE_WIZARD:
+                for _ in xrange(10):
+                    self.game.communicator.update_player_interface()
+            else:
+                self.game.communicator.update_player_interface()
 
     def _describe_the_block_player_is_on(self, distance_traveled=None):
         """Describe the block that the player is on."""
@@ -855,7 +868,11 @@ class Player(object):
             )
         )
         self.game.communicator.player_exposition_enumeration = self._compile_city_business_directory()
-        self.game.communicator.update_player_interface()
+        if not REMOTE_WIZARD:
+            for _ in xrange(10):
+                self.game.communicator.update_player_interface()
+        else:
+            self.game.communicator.update_player_interface()
 
     def _compile_city_business_directory(self):
         """Compile the city's business directory, which is a listing of businesses and their addresses."""
@@ -879,7 +896,11 @@ class Player(object):
             )
         )
         self.game.communicator.player_exposition_enumeration = self._compile_city_residential_directory()
-        self.game.communicator.update_player_interface()
+        if not REMOTE_WIZARD:
+            for _ in xrange(10):
+                self.game.communicator.update_player_interface()
+        else:
+            self.game.communicator.update_player_interface()
 
     def _compile_city_residential_directory(self):
         """Compile the city's residential directory, which is a listing of residents and their addresses."""
@@ -1122,7 +1143,11 @@ class Player(object):
             print '\n{exposition}\n'.format(exposition=exposition)
         else:
             self.game.communicator.player_exposition = exposition
-            self.game.communicator.update_player_interface()
+            if not REMOTE_WIZARD:
+                for _ in xrange(10):
+                    self.game.communicator.update_player_interface()
+            else:
+                self.game.communicator.update_player_interface()
 
     def change_interlocutor(self, new_interlocutor):
         """Change the current interlocutor, which will clear old information from the actor interface."""
@@ -1436,7 +1461,11 @@ class Player(object):
             print '\n{exposition}\n'.format(exposition=exposition)
         else:
             self.game.communicator.player_exposition = exposition
-            self.game.communicator.update_player_interface()
+            if not REMOTE_WIZARD:
+                for _ in xrange(10):
+                    self.game.communicator.update_player_interface()
+            else:
+                self.game.communicator.update_player_interface()
 
     def knock(self):
         """Print exposition surrounding the knocking of a house's door."""
@@ -1466,7 +1495,11 @@ class Player(object):
             print '\n{exposition}\n'.format(exposition=exposition)
         else:
             self.game.communicator.player_exposition = exposition + ' The intercom system remains before you:'
-            self.game.communicator.update_player_interface()
+            if not REMOTE_WIZARD:
+                for _ in xrange(10):
+                    self.game.communicator.update_player_interface()
+            else:
+                self.game.communicator.update_player_interface()
 
     def _buzz_apartment_complex_office(self):
         """Buzz the office of an apartment complex.
@@ -1545,7 +1578,11 @@ class Player(object):
         else:
             self.game.communicator.player_exposition = verdict
             self.game.communicator.player_exposition_enumeration = ''
-            self.game.communicator.update_player_interface()
+            if not REMOTE_WIZARD:
+                for _ in xrange(10):
+                    self.game.communicator.update_player_interface()
+            else:
+                self.game.communicator.update_player_interface()
 
     def notify_random_person(self):
         """As a last-ditch effort, notify a random person in the player's location."""
@@ -1610,25 +1647,88 @@ uai = bn.communicator.update_actor_interface
 push = bn.communicator.update_actor_interface
 upi = bn.communicator.update_player_interface
 test = bn.communicator.test
-begin = bn.begin
+
 l = pc.ask_to_list
 ta = pc.talk_about
 bar = pc.goto_bar
-speak = bn.communicator.speak_directly_to_player
+
 pop = pc.pop_back
 go = pc.go_outside
 gk = pc.go_knock
 ge = pc.go_enter
 comm = bn.communicator
 ce = bn.communicator.set_player_interface_enumeration_text
-bd = pc.view_business_directory
-rd = pc.view_residential_directory
-out = pc.go_outside
-epilogue = bn.epilogue
-prompt = bn.prompt
+
+bot = g.city.businesses_of_type
+sim = g
+sibs = list(d.siblings)
+mom, dad = d.mother, d.father
+loves_d = [p for p in g.city.residents if p.love_interest is d]
+institutions = [c for c in g.city.former_companies if c.closed-c.founded >= 75]
+institutions += [c for c in g.city.companies if g.year-c.founded >= 75]
+institutions = [
+    c for c in institutions if c.__class__.__name__ not in (
+        'Farm', 'Park', 'Cemetery', 'CityHall', 'FireStation', 'PoliceStation', 'School'
+    )
+]
+def bg():
+    if not pc.i:
+        print '(no interlocutor)'
+    else:
+        print "Relation to {} (d): {} (c: {}, s: {})".format(
+            d.name, pc.i.relation_to_me(d) if pc.i.relation_to_me(d) else 'none', pc.i.charge(d), pc.i.spark(d)
+        )
+        for n in nok:
+            print "Relation to {} (nok): {} (c: {}, s: {})".format(
+                n.name, pc.i.relation_to_me(n) if pc.i.relation_to_me(n) else 'none', pc.i.charge(n), pc.i.spark(n)
+            )
+        for pci in pc.all_interlocutors:
+            print "Relation to {} (i): {} (c: {}, s: {})".format(
+                pci.name, pc.i.relation_to_me(pci) if pc.i.relation_to_me(pci) else 'none',
+                pc.i.charge(pci), pc.i.spark(pci)
+            )
+def inst():
+    for i in institutions:
+        if i.closed:
+            print "{name} {founded}-{closed}".format(name=i.name, founded=i.founded, closed=i.closed)
+        else:
+            print "{name} {founded}-open".format(name=i.name, founded=i.founded, closed=i.closed)
+
 def I():
-    upi()
-    uai()
+    for _ in xrange(10):
+        upi()
+        uai()
 def lpush():
     l()
     push()
+def let_in_apt():
+    """Let the player into the hallway outside the apartment of the person that they're buzzing."""
+    if pc.i and pc.i.location.__class__.__name__ == "Apartment":
+        apt_number = pc.i.location.unit_number
+        pc.enter(let_in=True)
+        pc.approach_apt(apt_number)
+        pc.knock()
+
+
+speak = bn.communicator.speak_directly_to_player
+begin = bn.begin
+epilogue = bn.epilogue
+prompt = bn.prompt
+bd = pc.view_business_directory
+rd = pc.view_residential_directory
+out = pc.go_outside
+observe = pc.observe
+goto = pc.goto
+goto_block = pc.goto_block
+goto_co = pc.goto_co
+go_back = pc.go_back
+move = pc.move
+approach = pc.approach
+enter = pc.enter
+exit = pc.exit
+address = pc.address
+end_convo = pc.end_conversation
+ring = pc.ring
+knock = pc.knock
+buzz = pc.buzz
+notify = pc.notify
